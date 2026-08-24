@@ -1,6 +1,6 @@
 ---
 name: takeover
-description: 指定worktreeの .claude/HANDOVER.md を読み込み、前セッションの作業内容を引き継ぐ。「引き継ぎ」「takeover」「前のセッションの続き」「handoverを読んで」「作業を引き継いで」と言及された場合に使用する。
+description: 指定worktreeの .claude/HANDOVER.md を読み込み、前セッションの作業内容を引き継ぐ。「引き継ぎを受けて」「takeover」「前のセッションの続き」「handoverを読んで」「作業を引き継いで」と言及された場合に使用する。既存の引き継ぎを読み込む側のスキルであり、現在のセッションを保存して引き継ぎを書き出す場合はhandoverスキルを使う。
 ---
 
 # /takeover
