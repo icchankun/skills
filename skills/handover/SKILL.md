@@ -1,6 +1,6 @@
 ---
 name: handover
-description: セッション内容を構造化して .claude/HANDOVER.md に保存し、worktree間の引き継ぎを可能にする。「引き継ぎ」「handover」「セッションを保存」「作業内容をまとめて」「別のworktreeに移る前に」と言及された場合、またはPreCompact hookから自動トリガーされた場合に使用する。
+description: セッション内容を構造化して .claude/HANDOVER.md に保存し、worktree間の引き継ぎを可能にする。「引き継ぎを残して」「引き継ぎを書いて」「handover」「セッションを保存」「作業内容をまとめて」「別のworktreeに移る前に」と言及された場合、またはPreCompact hookから自動トリガーされた場合に使用する。引き継ぎを書き出す側のスキルであり、既存のHANDOVER.mdを読み込んで前セッションを再開する場合はtakeoverスキルを使う。
 ---
 
 # /handover
