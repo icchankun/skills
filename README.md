@@ -1,6 +1,6 @@
 # icchankun/skills
 
-A plugin bundling personal git / GitHub workflow skills, maintained by [@icchankun](https://github.com/icchankun) and distributed via [APM](https://github.com/microsoft/apm) (Agent Package Manager). Each skill under `skills/` follows the [agentskills.io](https://agentskills.io/specification) open standard.
+A plugin bundling personal development workflow skills, maintained by [@icchankun](https://github.com/icchankun) and distributed via [APM](https://github.com/microsoft/apm) (Agent Package Manager). Each skill under `skills/` follows the [agentskills.io](https://agentskills.io/specification) open standard.
 
 ## Install
 
