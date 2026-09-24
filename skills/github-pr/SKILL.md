@@ -10,23 +10,38 @@ PRタイトルとdescriptionをコミットメッセージから自動生成す�
 
 ## 手順
 
-### ステップ1: 現状を把握する
+### ステップ1: ベースブランチを決める
+
+PRのマージ先（ベースブランチ）を次の順で決める。以降の `<base>` はここで決めたブランチを指す:
+
+1. 引数で指定されたブランチ
+2. `git config branch.<現在のブランチ>.gh-merge-base` の値（`/git-branch` が作成元を記録している）
+3. リポジトリのデフォルトブランチ
+
+```bash
+git config "branch.$(git branch --show-current).gh-merge-base"
+gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
+```
+
+`gh pr create` も `--base` がなければ同じ順で決めるが、確認と rebase に使うため、ここで明示的に決めておく
+
+### ステップ2: 現状を把握する
 
 以下を**並列**で実行し、PRに含まれるコミットと変更内容を把握する:
 
 ```bash
 git branch --show-current
-git log --oneline develop..HEAD
-git log develop..HEAD --reverse --format='%B---COMMIT_SEPARATOR---'
-git diff develop..HEAD --name-only
+git log --oneline <base>..HEAD
+git log <base>..HEAD --reverse --format='%B---COMMIT_SEPARATOR---'
+git diff <base>..HEAD --name-only
 ```
 
 **中断条件** — 以下のいずれかに該当する場合は処理を止め、理由を伝える:
 
-- 現ブランチが `develop` または `main` である — 保護ブランチへの直接pushが発生するため
-- develop上にコミットがない — PRに含める変更がないため
+- 現ブランチがベースブランチまたはデフォルトブランチである — 保護ブランチへの直接pushが発生するため
+- ベースブランチからのコミットがない — PRに含める変更がないため
 
-### ステップ2: PRタイトルを組み立てる
+### ステップ3: PRタイトルを組み立てる
 
 PRタイトルは `[チケットID][サービス名] サマリー` の形式にする。
 
@@ -44,7 +59,7 @@ PRタイトルは `[チケットID][サービス名] サマリー` の形式に�
 
 変更ファイルのパスやクラスの名前空間から、この変更がどの機能領域に属するかを推定する:
 
-1. `git diff develop..HEAD --name-only` の `app/` 配下のパスを見る
+1. `git diff <base>..HEAD --name-only` の `app/` 配下のパスを見る
 2. モデル・コントローラ等のディレクトリ名（名前空間）の出現頻度を集計する
 3. 最も多い名前空間からチームが普段PRタイトルで使うサービス名を判断する
 
@@ -65,7 +80,7 @@ PRタイトルは `[チケットID][サービス名] サマリー` の形式に�
 ログイン時のエラーハンドリングを修正
 ```
 
-### ステップ3: PR descriptionを作成する
+### ステップ4: PR descriptionを作成する
 
 プロジェクトに `.github/PULL_REQUEST_TEMPLATE.md` がある場合はそれを読み込み、ベースにする。
 
@@ -114,23 +129,23 @@ PRタイトルは `[チケットID][サービス名] サマリー` の形式に�
 
 複数コミットをまとめ直した文章や動作確認の項目は、`humanizer-ja` スキルを読み込み、その基準で見直してから提示する。コミットメッセージをそのまま使った部分は `/git-commit` で見直し済みなので、手を入れない。
 
-### ステップ4: ユーザーに確認する
+### ステップ5: ユーザーに確認する
 
 以下を提示して承認を得る:
 
 - **PRタイトル**
 - **PR description**（全文）
-- **ベースブランチ**: develop
+- **ベースブランチ**: `<base>`（ステップ1でどの方法で決めたかを添える）
 
 ユーザーがタイトルやdescriptionの修正を求めた場合は反映してから進む。
 
-### ステップ5: rebase & push & PR作成
+### ステップ6: rebase & push & PR作成
 
 承認後、以下を順に実行する:
 
-1. developの最新をrebase:
+1. ベースブランチの最新をrebase:
    ```bash
-   git pull --rebase origin develop
+   git pull --rebase origin <base>
    ```
    コンフリクトが発生した場合はユーザーに伝えて処理を中断する。自動でコンフリクト解消は行わない。
 
@@ -141,7 +156,7 @@ PRタイトルは `[チケットID][サービス名] サマリー` の形式に�
 
 3. draft PRを作成:
    ```bash
-   gh pr create --draft --base develop --title "タイトル" --body "$(cat <<'EOF'
+   gh pr create --draft --base <base> --title "タイトル" --body "$(cat <<'EOF'
    description全文
    EOF
    )"
@@ -152,5 +167,5 @@ PRタイトルは `[チケットID][サービス名] サマリー` の形式に�
 ## 禁止事項
 
 - ユーザーの承認なしに `git push` や `gh pr create` を実行しない — 共有リポジトリへの操作は確認が必須
-- `develop` や `main` ブランチ上では絶対にpushしない — 保護ブランチへの直接pushは事故のもと
+- ベースブランチやデフォルトブランチの上では絶対にpushしない — 保護ブランチへの直接pushは事故のもと
 - コミットの作成・変更はしない — それは `/git-commit` の役割
