@@ -18,13 +18,14 @@ class PrUnresolvedThreadFetcher
         pullRequest(number: $number) {
           title # PRのタイトル
           url   # PRのURL
-          reviewThreads(first: 50) {
+          reviewThreads(first: 100) {
             nodes {
               id         # スレッドID（PRRT_...）。resolveReviewThread mutation に使用
               isResolved # スレッドが解決済みかどうか。REST APIでは取得不可
-              comments(first: 50) {
+              comments(first: 100) {
                 nodes {
                   id        # コメントID（PRRC_...）
+                  databaseId # REST API の返信エンドポイントに渡す数値ID
                   author { login __typename } # login: GitHubユーザー名, __typename: "User" or "Bot"
                   body      # コメント本文（Markdown）
                   path      # レビュー対象のファイルパス
@@ -102,6 +103,7 @@ class PrUnresolvedThreadFetcher
   def build_comment(comment)
     {
       id: comment["id"],
+      database_id: comment["databaseId"],
       author: comment.dig("author", "login"),
       author_type: comment.dig("author", "__typename"),
       body: comment["body"],
