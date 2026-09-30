@@ -1,6 +1,6 @@
 ---
 name: herdr-coding
-description: Herdrで隣のペインにreviewerを立て、自分が実装した差分を /pr-review-toolkit:review-pr でレビューさせ、CriticalとImportantの指摘がなくなるまで修正とレビューを自動で往復する。「実装とレビューを回して」「レビュー役を立てて」「reviewerに見せて」「レビューが通るまで直して」「実装とレビューを分けたい」と言われた場合に使う。HERDR_ENV=1 が必要。
+description: Herdrで隣のペインにreviewerを立て、自分が実装した差分を /review-diff でレビューさせ、CriticalとImportantの指摘がなくなるまで修正とレビューを自動で往復する。「実装とレビューを回して」「レビュー役を立てて」「reviewerに見せて」「レビューが通るまで直して」「実装とレビューを分けたい」と言われた場合に使う。HERDR_ENV=1 が必要。
 ---
 
 # herdr-coding
@@ -9,8 +9,8 @@ description: Herdrで隣のペインにreviewerを立て、自分が実装した
 
 ```
  ┌─ このペイン (driver = coder) ─┐        ┌─ reviewer ─────────────┐
- │ 実装                          │─依頼─►│ /pr-review-toolkit:     │
- │   ▲                           │        │   review-pr            │
+ │ 実装                          │─依頼─►│ /review-diff           │
+ │   ▲                           │        │                        │
  │   │ Critical / Important      │◄─指摘─│ ファイルは編集しない   │
  │   └ を直す                    │        └────────────────────────┘
  │ 0件になったら報告 → コミット  │
@@ -72,13 +72,13 @@ Suggestions は直さなくてよい。5 の報告に一覧で添え、ユーザ
 
 ### 依頼文
 
-依頼の前に、新しく作ったファイルを `git add -N <ファイル>` で追跡対象にする。review-pr は `git diff` で対象を決めるので、untracked のままだとレビューされない。
+依頼の前に、新しく作ったファイルを `git add -N <ファイル>` で追跡対象にする。レビューは `git diff` で対象を決めるので、untracked のままだとレビューされない。
 
 reviewer はこの会話の文脈を持たない。1通目に対象・要件・観点・返してほしい形式を書く。
 
 ```
 SendMessage(to: "wk-p3-reviewer", message: "未コミットの差分をレビューしてほしい。
-`/pr-review-toolkit:review-pr code errors tests comments types` を実行してほしい。simplify はファイルを書き換えるので含めない。
+`/review-diff` を実行してほしい。
 要件は〈…〉。
 ファイルは編集せず、Critical / Important / Suggestions に分けて、それぞれ file:line 付きで返してほしい。
 該当なしの区分は『0件』と書いてほしい。")
