@@ -1,9 +1,9 @@
 ---
-name: git-branch
+name: creating-git-branches
 description: gitブランチ名をConventional Branch規則に従って決め、worktreeとして作成する。会話の文脈・チケット・差分からブランチ名を自分で決め、最新のdevelop（なければデフォルトブランチ）から切る。作業ブランチの上にいるときだけ、最新から切るか積むか（stacked PR）を聞く。ユーザーが「ブランチを切りたい」「新しいブランチ」「作業を始めたい」「worktreeを作りたい」「この作業用のブランチ」「新しい機能を実装したい」「バグを直したい」と言った場合や、新しいタスクに取りかかろうとしている場合に使う。明示的にブランチ名を指定していなくても、新しい作業の開始を示唆していればこのスキルを使うこと。
 ---
 
-# /git-branch スキル
+# /creating-git-branches スキル
 
 gitの差分や会話の文脈をもとに、[Conventional Branch](https://conventional-branch.github.io) 命名規則に従ったブランチ名を決め、worktreeとして作成する
 
@@ -76,7 +76,7 @@ git config branch.<ブランチ名>.gh-merge-base <PRのマージ先>
 ```
 
 - `origin/<ベース>` から切ると、追跡先が `origin/<ベース>` になる。そのままだと `git pull` でベースを取り込み、状態表示もベースとの比較になるので、2行目で外す。今のブランチの上に積んだときは追跡先が付かないので、2行目は失敗してよい
-- 3行目で PR のマージ先を記録する。ベースから切ったときはベースの名前（`origin/` を付けない）、今のブランチの上に積んだときはそのブランチの名前。`/github-pr` と `gh pr create` はこれを PR のマージ先に使う
+- 3行目で PR のマージ先を記録する。ベースから切ったときはベースの名前（`origin/` を付けない）、今のブランチの上に積んだときはそのブランチの名前。`/creating-pull-requests` と `gh pr create` はこれを PR のマージ先に使う
 
 ### ステップ6: 報告
 

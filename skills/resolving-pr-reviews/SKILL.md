@@ -83,7 +83,7 @@ ruby ~/.claude/skills/resolving-pr-reviews/scripts/fetch_pr_comments.rb "$REPO" 
 
 「直す」のスレッドをまとめて実装し、変更したファイルに関係するテストや lint を実行する。
 
-`/git-commit` でコミットを作成する。`/git-commit` のユーザー確認はステップ4に回し、ここでは取らない。
+`/committing-git-changes` でコミットを作成する。`/committing-git-changes` のユーザー確認はステップ4に回し、ここでは取らない。
 
 fixup は作らない。squash には force push が要り、ラウンドごとに履歴を書き換えると、返信に貼ったコミットのリンクが切れるため。
 
@@ -107,7 +107,7 @@ fixup は作らない。squash には force push が要り、ラウンドごと�
 ### コミット
 abc1234 fix: ...（メッセージ全文）
 
-### 整理したコメント（/git-commit のステップ3）
+### 整理したコメント（/committing-git-changes のステップ3）
 app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 ```
 

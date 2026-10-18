@@ -1,9 +1,9 @@
 ---
-name: review-diff
+name: reviewing-git-diffs
 description: 差分を /pr-review-toolkit:review-pr（バグ・エラー処理・テストなどの正しさ）と /ponytail:ponytail-review（消せるコード・要らない依存・先回りした抽象化）の両方でレビューし、指摘を Critical / Important / Suggestions の1つの一覧にまとめて返す。ファイルは編集しない。「レビューして」「差分を見て」「コミット前・PRを出す前に見て」「作り込みすぎてないか見て」と言われた場合や、herdr-coding の reviewer としてレビューを頼まれた場合に使う。review-pr や ponytail-review を単独で呼ぶ場面でも、ユーザーが片方だけを指定していなければこちらを使う。PRに付いたレビューコメントへの対応は resolving-pr-reviews、GitHub の PR にレビューを投稿するのは code-review の役割で、このスキルは使わない。
 ---
 
-# review-diff
+# reviewing-git-diffs
 
 2つのレビューは見るところが違う。review-pr はバグ・エラー処理・テスト・コメント・型を見て、ponytail-review は消せるもの（標準ライブラリの作り直し、要らない依存、先回りした抽象化）だけを見る。片方だけだと、正しいが大きすぎる差分か、小さいが壊れた差分を見逃す。
 
@@ -31,7 +31,7 @@ gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
 レビューを始めるときに、今の作業ツリーのスナップショットを取る。
 
 ```bash
-sh ~/.claude/skills/review-diff/scripts/snapshot.sh
+sh ~/.claude/skills/reviewing-git-diffs/scripts/snapshot.sh
 ```
 
 出た ID を結果の先頭に書く。次の依頼で前回のスナップショットとして渡ってくる。前回の ID があれば、`git diff <前回> <今回>` が対象になる。

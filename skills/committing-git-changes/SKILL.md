@@ -1,9 +1,9 @@
 ---
-name: git-commit
+name: committing-git-changes
 description: gitコミットを作成する。差分の分析・ステージング・Conventional Commitsに従ったメッセージ生成を一括で行う。ユーザーが「コミットしたい」「変更をコミット」「コミットメッセージを作って」と言った場合や、実装が完了してコミットの準備ができている場合に使う。ユーザーがこのスキルを明示的に指定していなくても、`git commit` を実行しようとする場面では必ずこのスキルを使うこと。
 ---
 
-# /git-commit スキル
+# /committing-git-changes スキル
 
 gitの差分や会話の文脈をもとに、[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) に従ったコミットメッセージを生成し、コミットを作成する
 

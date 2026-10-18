@@ -1,6 +1,6 @@
 ---
 name: herdr-coding
-description: Herdrで隣のペインにreviewerを立て、自分が実装した差分を /review-diff でレビューさせ、直すべき指摘（Critical・Important と、直すのが妥当な Suggestions）がなくなるまで修正とレビューを自動で往復する。「実装とレビューを回して」「レビュー役を立てて」「reviewerに見せて」「レビューが通るまで直して」「実装とレビューを分けたい」と言われた場合に使う。HERDR_ENV=1 が必要。
+description: Herdrで隣のペインにreviewerを立て、自分が実装した差分を /reviewing-git-diffs でレビューさせ、直すべき指摘（Critical・Important と、直すのが妥当な Suggestions）がなくなるまで修正とレビューを自動で往復する。「実装とレビューを回して」「レビュー役を立てて」「reviewerに見せて」「レビューが通るまで直して」「実装とレビューを分けたい」と言われた場合に使う。HERDR_ENV=1 が必要。
 ---
 
 # herdr-coding
@@ -9,7 +9,7 @@ description: Herdrで隣のペインにreviewerを立て、自分が実装した
 
 ```
  ┌─ このペイン (driver = coder) ─┐        ┌─ reviewer ─────────────┐
- │ 実装                          │─依頼─►│ /review-diff           │
+ │ 実装                          │─依頼─►│ /reviewing-git-diffs   │
  │   ▲                           │        │                        │
  │   │ 妥当な指摘                │◄─指摘─│ ファイルは編集しない   │
  │   └ を直す                    │        └────────────────────────┘
@@ -59,7 +59,7 @@ reviewer が既に動いていると使い回すので、`-m` を変えても切
 2. reviewer にレビューを依頼する。
 3. 返ってきた指摘を仕分けて直す。仕分けの基準は下の「Suggestions も直す」。直さないものは理由を決める。
 4. 2 に戻る。直すと決めた指摘が1つもない結果が返ってきたら 5 へ。Critical と Important は 0 件で、残った Suggestions はすべて「直さない」と決めたものになっている。
-5. ユーザーに報告し、続けて `/git-commit` を呼ぶ。コミットの了解は `/git-commit` の確認で取り、二重に聞かない。
+5. ユーザーに報告し、続けて `/committing-git-changes` を呼ぶ。コミットの了解は `/committing-git-changes` の確認で取り、二重に聞かない。
 
 2〜4 はユーザーに確認を取らずに回す。止まるのは次のときだけ:
 
@@ -92,7 +92,7 @@ reviewer はこの会話の文脈を持たない。1通目に対象・要件・�
 
 ```
 SendMessage(to: "wk-p3-reviewer", message: "未コミットの差分をレビューしてほしい。
-`/review-diff` を実行してほしい。
+`/reviewing-git-diffs` を実行してほしい。
 要件は〈…〉。
 ファイルは編集せず、Critical / Important / Suggestions に分けて、それぞれ file:line 付きで返してほしい。
 結果は wk-p3-driver 宛ての SendMessage で返してほしい。画面に書くだけでは、こちらに届かない。
