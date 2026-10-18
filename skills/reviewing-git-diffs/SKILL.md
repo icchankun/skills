@@ -22,7 +22,7 @@ git status --short
 何も出なければ、`<base>..HEAD` が対象。`<base>` は引数で指定されたブランチ、`git config branch.<現在のブランチ>.gh-merge-base` の値、リポジトリのデフォルトブランチの順で決める。
 
 ```bash
-git config "branch.$(git branch --show-current).gh-merge-base"
+git config --get "branch.$(git branch --show-current).gh-merge-base"
 gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
 ```
 
