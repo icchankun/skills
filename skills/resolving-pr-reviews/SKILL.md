@@ -22,7 +22,7 @@ argument-hint: "<PR番号> [--once]"
  │        │
  │   3. 実装 → コミット
  │        │
- │   4. push の承認 ◄── ユーザー確認はここだけ
+ │   4. push の承認 ◄── ready の PR のときだけ
  │        │
  │   5. push → 返信 → resolve
  │        │
@@ -30,7 +30,16 @@ argument-hint: "<PR番号> [--once]"
  └────────┘
 ```
 
-ユーザーに止めて確認を取るのは、ステップ4の push 前と、ステップ2で判断が要る指摘があったときだけ。
+ユーザーに止めて確認を取るのは、ready の PR でのステップ4の push 前と、ステップ2で判断が要る指摘があったときだけ。
+
+draft か ready かで、直し方と返信が変わる:
+
+| PR | 直し方 | 返信に貼るもの | push の承認 |
+|---|---|---|---|
+| draft | 直したい箇所を入れたコミットに fixup して、履歴を整えたまま force push | 修正後のコードのパーマリンク | 取らない |
+| ready | 新しいコミットを積む | コミットのリンク | 取る |
+
+draft の間は、レビュー前の履歴を整えておく方が、後で読む人に分かりやすい。ready になった後はレビュアーが差分を追っているので、履歴を書き換えずに積む。
 
 `--once` のとき、または PR に Copilot のレビューが付いていないときは、ステップ5で終えてステップ7に進む。人のレビュアーはいつ返すか分からないので、待たない。
 
@@ -43,7 +52,10 @@ argument-hint: "<PR番号> [--once]"
 ```bash
 gh repo view --json nameWithOwner --jq '.nameWithOwner'
 gh api user --jq '.login'
+gh pr view <PR番号> --json isDraft --jq '.isDraft'
 ```
+
+3つ目が `true` なら draft。ラウンドごとに見直す。途中で ready にされることがあるため。
 
 続けて、1つ目の結果を `REPO` として、Copilot がレビューに付いているかを確かめる。`copilot-pull-request-reviewer` で始まるものがあれば付いている:
 
@@ -51,7 +63,7 @@ gh api user --jq '.login'
 gh api "repos/$REPO/pulls/<PR番号>/reviews" --jq '[.[].user.login] | unique'
 ```
 
-ラウンドの数はここから数える。**上限は5ラウンド**。Copilot は直した箇所の周辺に新しい細かい指摘を出し続けることがあり、上限がないと終わらない。
+ラウンドの数はここから数える。上限は設けず、新しい指摘がなくなるまで回す。前のラウンドで「直さない」と決めた指摘と同じものは、同じ理由で「直さない」にするので、同じ指摘で回り続けることはない。
 
 ## ステップ1: 未解決スレッドの取得
 
@@ -83,16 +95,25 @@ ruby ~/.claude/skills/resolving-pr-reviews/scripts/fetch_pr_comments.rb "$REPO" 
 
 「直す」のスレッドをまとめて実装し、変更したファイルに関係するテストや lint を実行する。
 
-`/committing-git-changes` でコミットを作成する。`/committing-git-changes` のユーザー確認はステップ4に回し、ここでは取らない。
+**ready の PR:** `/committing-git-changes` で新しいコミットを作成する。`/committing-git-changes` のユーザー確認はステップ4に回し、ここでは取らない。
 
-fixup は作らない。squash には force push が要り、ラウンドごとに履歴を書き換えると、返信に貼ったコミットのリンクが切れるため。
+**draft の PR:** 直した箇所を入れたコミットを `git log` と `git blame` で探し、そのコミットに fixup して並べ直す。
+
+```bash
+git commit --fixup=<直したい箇所を入れたコミット>
+GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <ベースブランチ>
+```
+
+コミットメッセージは変えないので、`/committing-git-changes` は通さない。直しが元のコミットの説明と合わなくなるときだけ、そのコミットのメッセージも直す。
 
 ## ステップ4: push の承認
 
-以下をまとめて提示し、承認を得る。**自動で push しない。**
+ready の PR のときだけ行う。draft の PR ではステップ5に進む。
+
+以下をまとめて提示し、承認を得る。**ready の PR は自動で push しない。**
 
 ```
-## ラウンド 2 / 最大5
+## ラウンド 2
 
 ### 直した（3件）
 [1] app/models/foo.rb:L42 — nil のときの分岐を追加（abc1234）
@@ -121,7 +142,7 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
    date -u +%Y-%m-%dT%H:%M:%SZ
    ```
 
-2. `git push` を実行する。
+2. push する。ready の PR は `git push`、draft の PR は履歴を書き換えたので `git push --force-with-lease`。
 
 3. 各スレッドに返信する。`comment_id` にはスレッドの最初のコメントの `database_id` を使う:
 
@@ -129,11 +150,12 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
    gh api repos/{owner}/{repo}/pulls/{pr_number}/comments/{comment_id}/replies -f body="返信本文"
    ```
 
-   コミットURLを含める場合は、`gh api` でGitHub上にコミットが存在することを確認してから返信する（リンク切れ防止）。
+   URL を含める場合は、`gh api` でGitHub上にコミットが存在することを確認してから返信する（リンク切れ防止）。
 
    **返信テンプレート:**
 
-   - 直した: `こちら対応しました！` + `[<コミットメッセージの1行目>](<コミットのURL>)`
+   - 直した（ready）: `こちら対応しました！` + `[<コミットメッセージの1行目>](<コミットのURL>)` + なぜその直し方にしたかを1文
+   - 直した（draft）: `こちら対応しました！` + 修正後のコードのパーマリンク + なぜその直し方にしたかを1文。パーマリンクは push 後の HEAD の SHA で作る（`https://github.com/<REPO>/blob/<SHA>/<パス>#L<開始>-L<終了>`）。fixup で元のコミットの SHA は変わるので、push 前の SHA を使わない
    - 直さない: 直さない理由を1〜2文で書く。レビュアーが読んで納得できるよう、根拠（既存の設計判断、呼び出し元のコード位置など）を添える
 
    返信文は `reviewing-writing` スキルで見直してから投稿する。
@@ -145,8 +167,6 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 ## ステップ6: Copilot の再レビューを待つ
 
 `--once` のとき、または PR に Copilot のレビューが付いていないときはスキップして、ステップ7へ進む。
-
-ラウンドが上限に達していたら、再レビューを依頼せずにステップ7へ進む。
 
 1. 再レビューを依頼する:
 
@@ -185,7 +205,7 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 [6] path/to/file.rb:L88 — @reviewer
 ```
 
-終了理由は次のいずれか: 新しい指摘なし / `--once` / 上限の5ラウンドに到達 / 再レビューがタイムアウト / 待機中の API エラー / Copilot のレビューが付いていない。
+終了理由は次のいずれか: 新しい指摘なし / `--once` / 再レビューがタイムアウト / 待機中の API エラー / Copilot のレビューが付いていない。
 
 ## 注意事項
 
