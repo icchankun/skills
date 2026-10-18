@@ -30,13 +30,15 @@ description: 引き継がれた worktree で、リポジトリの流儀の確認
 - [ ] 1. 流儀を調べる
 - [ ] 2. 実装とレビューを往復する
 - [ ] 3. 画面を撮る
-- [ ] 4. 画像と動画を貼る準備
-- [ ] 5. draft PR を出す
+- [ ] 4. draft PR を出す
+- [ ] 5. 画像と動画を PR に貼る
 - [ ] 6. Copilot の指摘に対応する
 
 ## 要件
 
 ## 流儀のメモ
+
+## 画面
 
 ## 決めたこと
 
@@ -51,12 +53,14 @@ description: 引き継がれた worktree で、リポジトリの流儀の確認
 |---|---|---|---|
 | 1 | リポジトリの流儀を調べる | following-repo-conventions | 「流儀のメモ」が書けた |
 | 2 | 実装し、レビューと往復する | herdr-coding | 直すと決めた指摘が残っていない。コミット済み |
-| 3 | 画面を撮る | capturing-screens | 画面に変更がなければ飛ばす |
-| 4 | 画像と動画を貼る準備 | uploading-pr-media | 3 を飛ばしたら飛ばす |
-| 5 | draft PR を出す | creating-pull-requests | PR の URL が出た。dev-flow.md に書く |
+| 3 | 画面を撮る | capturing-screens | 「画面」の表が書けた。画面に変更がなければ飛ばす |
+| 4 | draft PR を出す | creating-pull-requests | PR の URL が出た。dev-flow.md に書く |
+| 5 | 画像と動画を PR に貼る | uploading-pr-media | PR の本文に表が入った。3 を飛ばしたら飛ばす |
 | 6 | Copilot の指摘に対応する | resolving-pr-reviews | 新しい指摘がなくなった |
 
 飛ばした手順は、チェックを付けて「（飛ばした: 理由）」と書く。
+
+画像を上げるには、コメント欄のある PR のページが要る。そのため、PR を出してから貼る。
 
 ## 止まるとき
 
