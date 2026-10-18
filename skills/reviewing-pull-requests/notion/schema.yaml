@@ -1,0 +1,14 @@
+# PR レビューの DB の列。足りない列・選択肢は足す。列の削除や型の変更は報告だけにする。
+# タイトルの列は DB ごとに名前が違う（「名前」など）。名前ではなく title の型の列を使う。
+# 選択式の列には、選択肢にない値を書けない。値が増えていく列（リポジトリ）はテキストにする。
+columns:
+  （タイトルの列）: { type: title }
+  区分: { type: select, options: [🟢 軽微, 🟡 ユーザー影響あり, 🔴 止めた, ⏳ 確認中] }
+  種類: { type: select, options: [機能, 修正, ライブラリ更新, テスト・ドキュメント, 内部の修正] }
+  リポジトリ: { type: rich_text }
+  PR: { type: url }
+  作成者: { type: rich_text }
+  要約: { type: rich_text }
+  確認したコミット: { type: rich_text }
+  approve: { type: select, options: [未, 自動, 手動, 押さない] }
+  確認日: { type: date }
