@@ -39,7 +39,22 @@ gitの差分や会話の文脈をもとに、[Conventional Commits](https://www.
 ### ステップ4: コミットメッセージ生成
 
 変更理由が不明な場合はユーザーに質問する
-後述の「コミットメッセージ規則」に従って生成し、`reviewing-writing` スキルで見直す
+後述の「コミットメッセージ規則」に従って生成する
+テーブルの追加・API の追加など、型が決まっている種類の変更は `references/templates.md` の型に沿って書く
+
+生成したら、中見出しの絵文字が gitmoji の公式一覧にあるかをスクリプトで確かめる:
+
+```bash
+python3 ~/.claude/skills/committing-git-changes/scripts/check_gitmoji.py < <メッセージのファイル>
+```
+
+- 終了コード 1 は一覧にない絵文字がある。出力された見出しの絵文字を、一覧から選び直す
+- 終了コード 2 は一覧を取れなかった。飛ばして続ける
+
+そのあと次の2つを並列で行い、両方の結果を反映する:
+
+- `reviewing-writing` スキルで文章を見直す
+- サブエージェント（Agent ツール）に、差分とメッセージを渡し、中見出しの絵文字が変更の種類に合っているかを確かめさせる。一覧にある絵文字でも、新機能に 🐛 を付けるような取り違えはスクリプトでは見つからないため
 
 ### ステップ5: ユーザー確認（1回のみ）
 
@@ -185,6 +200,10 @@ typo修正など自明な変更を除き、変更が必要だった理由を記�
 
 図だけで伝わるなら、図の説明を文章で繰り返さない。「なぜ必要なのか？」は図にせず散文で書く
 
+### 種類ごとの型
+
+テーブルの追加や API の追加のように、書くことが決まっている変更は `references/templates.md` の型に沿って書く。テーブルの追加では、テーブル同士の関係を ASCII アートの図にする
+
 本文を省略できるのは「なぜ」が自明な場合のみ（typo修正、lint修正等）
 「不要コード削除」は省略不可
 
@@ -195,6 +214,7 @@ typo修正など自明な変更を除き、変更が必要だった理由を記�
 - 本文は文字数で折り返さない
 - 1行目・「Why?」・「Changes」にはコード要素を含めない
 - 変更理由（why）を書く、主観的な判断には根拠を添える
+- 「Why?」は背景・課題の説明だけで終わらせず、対応方針を述べて締める。英語では課題の文に `, so …` でつなぐか、最後の文を `… so …` の形にする
 - 見出しの絵文字と空行の決まり、中見出しの下に本文を書くこと、図解の書き方
 
 次のものは英語の書き方に置き換える:
@@ -210,7 +230,7 @@ feat: Add the review loop
 ## 🎯 Why?
 
 Each round of review fixes had to be started by hand, and Copilot often leaves new comments around the lines that were just fixed.
-The skill now repeats the round until no new comments arrive, stopping only before a push.
+Waiting for those comments by hand made every fix take several turns, so the skill now repeats the round until no new comments arrive, stopping only before a push.
 
 ## 🔧 Changes
 
