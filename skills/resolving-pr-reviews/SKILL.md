@@ -81,7 +81,7 @@ ruby ~/.claude/skills/resolving-pr-reviews/scripts/fetch_pr_comments.rb "$REPO" 
 
 「ユーザーに聞く」はここでは止めず、ステップ4の提示でまとめて聞く。答えが出たものはステップ3に戻って直す。
 
-影響範囲が広い指摘は Agent ツール（subagent_type: Explore）で調べてから仕分ける。
+影響範囲が広い指摘は Agent ツール（subagent_type: Explore、model: sonnet）で調べてから仕分ける。
 
 前のラウンドで「直さない」と決めた指摘と同じ内容が出てきたら、同じ理由で「直さない」に入れる。判断を変えない。
 
