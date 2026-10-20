@@ -154,7 +154,13 @@ erDiagram
    )"
    ```
 
-4. 作成されたPRのURLをユーザーに表示する。
+4. Copilot にレビューを依頼する:
+   ```bash
+   gh pr edit <PRのURL> --add-reviewer @copilot
+   ```
+   失敗したら、そのリポジトリでは Copilot のコードレビューが使えない。PR の作成は済んでいるので止めず、依頼できなかったことを伝える。
+
+5. 作成されたPRのURLと、Copilot に依頼できたかをユーザーに表示する。
 
 ## 禁止事項
 

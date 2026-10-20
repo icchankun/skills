@@ -1,6 +1,6 @@
 ---
 name: resolving-pr-reviews
-description: PRの未解決レビュースレッドを取得し、修正・コミット・push・返信を行う。Copilotがレビューに付いている場合は再レビューを依頼し、新しい指摘がなくなるまで繰り返す。「レビュー対応」「レビューコメント修正」「指摘対応」「PR修正」「Copilotの指摘を直して」と言及された場合に使用する。
+description: PRの未解決レビュースレッドを取得し、修正・コミット・push・返信を行う。push するたびに Copilot に再レビューを依頼し、新しい指摘がなくなるまで繰り返す。「レビュー対応」「レビューコメント修正」「指摘対応」「PR修正」「Copilotの指摘を直して」と言及された場合に使用する。
 argument-hint: "<PR番号> [--once]"
 ---
 
@@ -24,9 +24,9 @@ argument-hint: "<PR番号> [--once]"
  │        │
  │   4. push の承認 ◄── ready の PR のときだけ
  │        │
- │   5. push → 返信 → resolve
+ │   5. push → Copilot に再レビュー依頼 → 返信 → resolve
  │        │
- │   6. Copilot に再レビュー依頼 → 届くまで待つ
+ │   6. Copilot の再レビューが届くまで待つ
  └────────┘
 ```
 
@@ -41,7 +41,7 @@ draft か ready かで、直し方と返信が変わる:
 
 draft の間は、レビュー前の履歴を整えておく方が、後で読む人に分かりやすい。ready になった後はレビュアーが差分を追っているので、履歴を書き換えずに積む。
 
-`--once` のとき、または PR に Copilot のレビューが付いていないときは、ステップ5で終えてステップ7に進む。人のレビュアーはいつ返すか分からないので、待たない。
+再レビューの依頼は、`--once` のときも含めて push のたびに出す。待つのは、`--once` でなく、依頼が通ったときだけ。依頼が通らなければ、ステップ5で終えてステップ7に進む。人のレビュアーはいつ返すか分からないので、待たない。
 
 ## 準備
 
@@ -55,13 +55,7 @@ gh api user --jq '.login'
 gh pr view <PR番号> --json isDraft --jq '.isDraft'
 ```
 
-3つ目が `true` なら draft。ラウンドごとに見直す。途中で ready にされることがあるため。
-
-続けて、1つ目の結果を `REPO` として、Copilot がレビューに付いているかを確かめる。`copilot-pull-request-reviewer` で始まるものがあれば付いている:
-
-```bash
-gh api "repos/$REPO/pulls/<PR番号>/reviews" --jq '[.[].user.login] | unique'
-```
+3つ目が `true` なら draft。ラウンドごとに見直す。途中で ready にされることがあるため。1つ目の結果を `REPO` として使う。
 
 ラウンドの数はここから数える。上限は設けず、新しい指摘がなくなるまで回す。前のラウンドで「直さない」と決めた指摘と同じものは、同じ理由で「直さない」にするので、同じ指摘で回り続けることはない。
 
@@ -144,7 +138,15 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 
 2. push する。ready の PR は `git push`、draft の PR は履歴を書き換えたので `git push --force-with-lease`。
 
-3. 各スレッドに返信する。`comment_id` にはスレッドの最初のコメントの `database_id` を使う:
+3. Copilot に再レビューを依頼する。前に Copilot のレビューが付いていなくても依頼する:
+
+   ```bash
+   gh pr edit <PR番号> --add-reviewer @copilot
+   ```
+
+   失敗したら、そのリポジトリでは Copilot のコードレビューが使えない。以降のラウンドでは依頼せず、ステップ6も飛ばす。
+
+4. 各スレッドに返信する。`comment_id` にはスレッドの最初のコメントの `database_id` を使う:
 
    ```bash
    gh api repos/{owner}/{repo}/pulls/{pr_number}/comments/{comment_id}/replies -f body="返信本文"
@@ -166,25 +168,19 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 
 ## ステップ6: Copilot の再レビューを待つ
 
-`--once` のとき、または PR に Copilot のレビューが付いていないときはスキップして、ステップ7へ進む。
+`--once` のとき、またはステップ5-3の依頼が通らなかったときはスキップして、ステップ7へ進む。
 
-1. 再レビューを依頼する:
+待機スクリプトを Bash の `run_in_background: true` で起動する。第3引数はステップ5-1で記録した時刻:
 
-   ```bash
-   gh pr edit <PR番号> --add-reviewer @copilot
-   ```
+```bash
+ruby ~/.claude/skills/resolving-pr-reviews/scripts/wait_for_copilot_review.rb "$REPO" <PR番号> <push前の時刻> 1200
+```
 
-2. 待機スクリプトを Bash の `run_in_background: true` で起動する。第3引数はステップ5-1で記録した時刻:
+終了すると通知が届くので、`sleep` やポーリングを自分で繰り返さない。
 
-   ```bash
-   ruby ~/.claude/skills/resolving-pr-reviews/scripts/wait_for_copilot_review.rb "$REPO" <PR番号> <push前の時刻> 1200
-   ```
-
-   終了すると通知が届くので、`sleep` やポーリングを自分で繰り返さない。
-
-   - exit 0: レビューが届いた。ラウンドを1つ進めてステップ1に戻る
-   - exit 2: 20分待っても届かなかった。ステップ7へ進み、再レビューが届いていないことを伝える
-   - それ以外: `gh api` が失敗した。エラー内容を添えてステップ7へ進む
+- exit 0: レビューが届いた。ラウンドを1つ進めてステップ1に戻る
+- exit 2: 20分待っても届かなかった。ステップ7へ進み、再レビューが届いていないことを伝える
+- それ以外: `gh api` が失敗した。エラー内容を添えてステップ7へ進む
 
 ## ステップ7: 結果報告
 
@@ -205,7 +201,15 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 [6] path/to/file.rb:L88 — @reviewer
 ```
 
-終了理由は次のいずれか: 新しい指摘なし / `--once` / 再レビューがタイムアウト / 待機中の API エラー / Copilot のレビューが付いていない。
+終了理由は次のいずれか: 新しい指摘なし / `--once` / 再レビューがタイムアウト / 待機中の API エラー / Copilot のコードレビューが使えない。
+
+draft の PR で終了理由が「新しい指摘なし」なら、報告の前に ready にする。Copilot の最新のレビューで追加の指摘がなく、レビュアーに見てもらえる状態になったため。
+
+```bash
+gh pr ready <PR番号>
+```
+
+報告の終了理由の下に「ready にした」と書く。ほかの終了理由では ready にしない。指摘が残っているか、まだ確かめきれていないため。
 
 ## 注意事項
 
