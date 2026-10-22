@@ -21,7 +21,7 @@ playwright-cli -s=github open --persistent --headed https://github.com/login
 
 ## 1. 上げるファイルを確かめる
 
-dev-flow.md の「画面」の表と、`$(git rev-parse --absolute-git-dir)/dev-flow-media/` のファイルを突き合わせる。表にあってファイルがないものは、capturing-screens に戻る。
+dev-flow.md の「画面」の表と動画（mp4）を、`$(git rev-parse --absolute-git-dir)/dev-flow-media/` のファイルと突き合わせる。表にあってファイルがないものは、capturing-screens に戻る。
 
 ## 2. コメント欄に入れて URL を取る
 
