@@ -145,7 +145,7 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
    date -u +%Y-%m-%dT%H:%M:%SZ
    ```
 
-2. push する。ready の PR は `git push`、draft の PR は履歴を書き換えたので `git push --force-with-lease`。
+2. push する。ready の PR は `git push`、draft の PR は履歴を書き換えたので `git push --force-with-lease`。PR がスタックの中にあり、上の層があるときは、`stacking-pull-requests` の 3 で上の層を載せ直してから、まとめて push する。
 
 3. Copilot に再レビューを依頼する。前に Copilot のレビューが付いていなくても依頼する:
 
