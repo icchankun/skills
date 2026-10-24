@@ -32,9 +32,10 @@ description: 引き継がれた worktree で、リポジトリの流儀の確認
 - [ ] 2. 実装とレビューを往復する
 - [ ] 3. 動作確認の項目を決める
 - [ ] 4. 画面を撮る
-- [ ] 5. draft PR を出す
-- [ ] 6. 画像と動画を PR に貼る
-- [ ] 7. Copilot の指摘に対応する
+- [ ] 5. 動作確認の動画を撮る
+- [ ] 6. draft PR を出す
+- [ ] 7. 画像と動画を PR に貼る
+- [ ] 8. Copilot の指摘に対応する
 
 ## なぜ
 
@@ -69,10 +70,11 @@ description: 引き継がれた worktree で、リポジトリの流儀の確認
 | 1 | リポジトリの流儀を調べる | following-repo-conventions | 「流儀のメモ」が書けた |
 | 2 | 実装し、レビューと往復する | herdr-coding | 直すと決めた指摘が残っていない。コミット済み |
 | 3 | 動作確認の項目を決める | planning-manual-checks | 「動作確認」が書けた |
-| 4 | 画面を撮る | capturing-screens | 「画面」の表と動画が書けた。画面に変更がなければ飛ばす |
-| 5 | draft PR を出す | creating-pull-requests | PR の URL が出た。dev-flow.md に書く |
-| 6 | 画像と動画を PR に貼る | uploading-pr-media | PR の本文に表が入った。4 を飛ばしたら飛ばす |
-| 7 | Copilot の指摘に対応する | resolving-pr-reviews | 新しい指摘がなくなった |
+| 4 | 画面を撮る | capturing-screens（Sonnet のサブエージェントに任せる） | 「画面」の表が書けた。画面に変更がなければ飛ばす |
+| 5 | 動作確認の動画を撮る | recording-manual-checks（Sonnet のサブエージェントに任せる） | 「画面」に動画のファイル名が書けた。4 を飛ばしたら飛ばす |
+| 6 | draft PR を出す | creating-pull-requests | PR の URL が出た。dev-flow.md に書く |
+| 7 | 画像と動画を PR に貼る | uploading-pr-media | PR の本文に表と動画が入った。4 を飛ばしたら飛ばす |
+| 8 | Copilot の指摘に対応する | resolving-pr-reviews | 新しい指摘がなくなった |
 
 動作確認の項目を撮影より先に決めるのは、動画をその項目に沿って撮るため。
 
@@ -88,9 +90,9 @@ description: 引き継がれた worktree で、リポジトリの流儀の確認
 |---|---|
 | 最初の準備 | worktree の依存を入れる（`bundle install`・`yarn install` など、README に書かれたもの）。DB の migration はここではしない。DB はほかの worktree と共有していることがあるため |
 | 1 の流儀を調べるサブエージェント | チケットと要件を読み、実装の方針を立てる |
-| 2 の reviewer の返事 | 変えたところに関係するテストを流す。3 の項目の下書きを書く。画面を変えたなら、撮影に使うアプリを起動する |
-| 4 の撮影のスクリプト | 5 の PR のタイトルと本文を下書きする |
-| 7 の Copilot の再レビュー | CI の結果を見て、落ちていれば直す（resolving-pr-reviews のステップ6） |
+| 2 の reviewer の返事 | 変えたところに関係するテストを流す。3 の項目の下書きを書く。画面を変えたなら、5 の動画の項目ごとのスクリプトを下書きし、撮影に使うアプリを起動する |
+| 4・5 の撮影のスクリプト | 6 の PR のタイトルと本文を下書きする |
+| 8 の Copilot の再レビュー | CI の結果を見て、落ちていれば直す（resolving-pr-reviews のステップ6） |
 
 変更前の画面は、2 の実装に入る前に撮ってよい（capturing-screens の 3）。ベースブランチは作業の途中で変わらないため。
 

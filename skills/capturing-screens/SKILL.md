@@ -1,6 +1,6 @@
 ---
 name: capturing-screens
-description: 画面に変更がある作業で、変更前（ベースブランチ）と変更後（作業ブランチ）の同じ画面を、同じ画面サイズ・同じデータでスクショに撮る。撮ったファイルの一覧を dev-flow.md に書き、uploading-pr-media が PR に貼る。ブラウザの立て方と閉じ方の決まりも書いてあり、動画を撮る recording-manual-checks もそれに従う。running-dev-flow から画面を変えたときに呼ばれるほか、「スクショを撮って」「変更前後を撮って」と言われた場合に使う。playwright-cli が必要。
+description: 画面に変更がある作業で、変更前（ベースブランチ）と変更後（作業ブランチ）の同じ画面を、同じ画面サイズ・同じデータでスクショに撮る。撮ったファイルの一覧を dev-flow.md に書き、uploading-pr-media が PR に貼る。ブラウザの扱いは recording-browser-videos の決まりに従う。running-dev-flow から画面を変えたときに呼ばれるほか、「スクショを撮って」「変更前後を撮って」と言われた場合に使う。playwright-cli が必要。
 ---
 
 # capturing-screens
@@ -11,7 +11,7 @@ description: 画面に変更がある作業で、変更前（ベースブラン�
 
 撮るのは、Agent ツールのサブエージェント（`model: sonnet`）に任せる。撮る画面・アプリの URL・置き場所を渡し、この skill に従わせる。決まった手順をなぞるだけで判断が軽く、Opus で動かしても出来は変わらないため。
 
-`playwright-cli` の書き方は `playwright-cli` skill に従う。読むのは SKILL.md と、使う資料（`references/storage-state.md`）だけにする。全部読むとトークンが多くかかるため。skill と CLI の版がずれて書き方が食い違うときは、`playwright-cli <コマンド> --help` の方を正とする。この skill に書くのは、この作業で決めたこと（画面サイズ・スクリプトにまとめること・ブラウザを残さないこと）だけ。
+`playwright-cli` の書き方は `playwright-cli` skill に従う（読むのは SKILL.md と `references/storage-state.md` だけ）。食い違うときは `playwright-cli <コマンド> --help` を正とする。
 
 ## 1. 撮る画面を決める
 
@@ -34,35 +34,11 @@ session="capture-$(basename "$(git rev-parse --show-toplevel)")"
 
 以降の `playwright-cli` はここで動かす。worktree で動かすと、snapshot が作る `.playwright-cli/` が未追跡のファイルとして残るため。
 
-## 撮り方: スクリプトにまとめて1回で動かす
+## ブラウザの扱い
 
-この節と次の「ブラウザを残さない」には、`recording-manual-checks` も従う。
+ブラウザの扱いは `recording-browser-videos` の「ブラウザの扱い」に従う。セッション名は 2 の `$session`、ログインの状態は worktree の git dir の `browser-auth.json` を使う。
 
-3 と 4 の `playwright-cli` は、1つずつ呼ばずにシェルのスクリプト（`$media/capture.sh`）に書き、Bash の1回の呼び出しで動かす。1操作ずつ呼ぶと、呼び出しの数だけ待ち時間とトークンがかかるため。動かしているあいだに別の作業を進められるよう、`run_in_background: true` で起動する。
-
-- 押す場所は、先に1回だけ `snapshot` で調べ、`'text=保存'` や `'role=button[name="保存"]'` のようなロケーターで書く。role の name は二重引用符で囲む。囲まないと、空白を含む名前で失敗する。snapshot の `e12` のような参照は、開き直すと変わるので使わない。
-- ログインが要る画面は、1回ログインしたら `state-save` で状態を残し、次からは `open` のあとに `state-load` する。ファイルは worktree の git dir に置く。`git wt -D` で worktree と一緒に消え、ログインの状態が worktree より長く残らない。
-  - 手元の開発用のアプリなら、seed や README にある開発用のユーザーで、ログインの画面をスクリプトで操作してログインする。人の手は要らない。
-  - SSO や2段階認証があってスクリプトでログインできないときだけ、`--headed` で開いてユーザーにログインしてもらい、`state-save` したらすぐ閉じる。パスワードやコードを Claude が扱わない。
-  - 撮っている途中でログインの画面に飛ばされたら、状態の期限が切れている。もう一度ログインして保存し直す。
-
-```bash
-auth="$(git rev-parse --absolute-git-dir)/dev-flow-auth.json"
-playwright-cli -s="$session" state-save "$auth"   # ログインしたあと、1回だけ
-playwright-cli -s="$session" state-load "$auth"   # 次から
-```
-
-- スクリプトが途中で失敗したら、失敗した行から先だけを直して流し直す。
-
-### ブラウザを残さない
-
-ブラウザは worktree ごとに1つだけ立て、使い終わったら必ず閉じる。`playwright-cli` のブラウザは、コマンドが終わっても `close` を呼ぶまで裏で動き続ける。途中で失敗して閉じ損ねたブラウザが worktree の数だけ残ると、録画を続けたまま CPU とメモリを使い切る。
-
-- セッション名は 2 の `$session` にする。worktree ごとに別のブラウザになり、ほかの worktree の撮影と取り合わない。
-- headless で起動する（`--headed` を付けない）。headed のブラウザは放っておいても止まらないため。
-- 画面サイズは headless の初期の 1280×720 のまま撮り、`resize` しない。変えると動画の下に灰色の帯が出る。
-- `open` には `--idle-timeout=600000` を付け、閉じ損ねても10分で止まるようにする。
-- スクリプトの先頭で `media` と `session` を 2 と同じように決め、どう終わっても閉じるようにする。スクリプトは別のシェルで動くので、2 で決めた値は引き継がれない。
+3 と 4 の `playwright-cli` は1つのスクリプト（`$media/capture.sh`）に書き、`run_in_background: true` で動かす。別のシェルで動いて 2 の値は引き継がれないので、先頭で `media` と `session` を 2 と同じように決め、`trap` でどう終わっても閉じる。
 
 ```bash
 set -e
