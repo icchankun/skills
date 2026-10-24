@@ -63,6 +63,13 @@ reviewer が既に動いていると使い回すので、`-m` を変えても切
 
 2〜4 はユーザーに確認を取らずに回す。
 
+### テストを流す
+
+手元で流すのは、変えたファイルに関係するテストだけにする。全体は CI が流すので、手元で繰り返すと待ち時間だけが増える。reviewer に依頼を送ったあと、返事を待つあいだに `run_in_background: true` で流す。
+
+- rspec なら、変えたファイルに対応する spec を指定する（`app/models/order.rb` なら `spec/models/order_spec.rb`）。2回目からは `--only-failures` で、落ちたものだけを流し直す。
+- 出力は `--format progress` にして、失敗したところだけを読む。テストの出力は長く、そのまま読むとトークンを多く使うため。
+
 依頼を送ってターンを終える前に、dev-flow.md（`$(git rev-parse --absolute-git-dir)/dev-flow.md`）があれば状態を `reviewer 待ち` にする。返事が届いたら `作業中` に戻す。dev-flow.md の Stop hook は `作業中` のあいだ終わらせないので、書き換えないと返事を受け取れない。
 
 止まるのは次のときだけ:

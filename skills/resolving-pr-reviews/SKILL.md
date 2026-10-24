@@ -57,6 +57,15 @@ gh pr view <PR番号> --json isDraft --jq '.isDraft'
 
 3つ目が `true` なら draft。ラウンドごとに見直す。途中で ready にされることがあるため。1つ目の結果を `REPO` として使う。
 
+Copilot にレビューを頼んであって、まだ届いていなければ、先に届くのを待つ。PR を出した直後に呼ばれると、Copilot のレビューが届く前にステップ1で0件になり、「新しい指摘なし」で終わってしまうため。
+
+```bash
+gh pr view <PR番号> --json reviewRequests,createdAt \
+  --jq '[(.reviewRequests[] | select((.login // "") | test("copilot"; "i"))), .createdAt]'
+```
+
+Copilot が依頼中に残っていれば、出てきた `createdAt` を起点にしてステップ6の待機スクリプトを流し、届いてからステップ1に進む。待つあいだに見るものもステップ6と同じ。
+
 ラウンドの数はここから数える。上限は設けず、新しい指摘がなくなるまで回す。前のラウンドで「直さない」と決めた指摘と同じものは、同じ理由で「直さない」にするので、同じ指摘で回り続けることはない。
 
 ## ステップ1: 未解決スレッドの取得
@@ -173,13 +182,21 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 待機スクリプトを Bash の `run_in_background: true` で起動する。第3引数はステップ5-1で記録した時刻:
 
 ```bash
-ruby ~/.claude/skills/resolving-pr-reviews/scripts/wait_for_copilot_review.rb "$REPO" <PR番号> <push前の時刻> 1200
+ruby ~/.claude/skills/resolving-pr-reviews/scripts/wait_for_copilot_review.rb "$REPO" <PR番号> <push前の時刻> 600
 ```
 
 終了すると通知が届くので、`sleep` やポーリングを自分で繰り返さない。
 
+待つあいだに CI の結果も見て、失敗を拾う。
+
+```bash
+gh pr checks <PR番号> --json name,state,link --jq '.[] | select(.state == "FAILURE")'
+```
+
+落ちたものがあれば原因を調べて直し、ステップ3と同じ方法でコミットしておく。push は、次のラウンドで指摘の直しと一緒にする。Copilot の新しい指摘がなくても、CI の直しが残っていればステップ4から進める。まだ動いている CI は待たない。
+
 - exit 0: レビューが届いた。ラウンドを1つ進めてステップ1に戻る
-- exit 2: 20分待っても届かなかった。ステップ7へ進み、再レビューが届いていないことを伝える
+- exit 2: 10分待っても届かなかった。ステップ7へ進み、再レビューが届いていないことを伝える
 - それ以外: `gh api` が失敗した。エラー内容を添えてステップ7へ進む
 
 ## ステップ7: 結果報告

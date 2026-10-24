@@ -36,7 +36,7 @@ end
 
 repo, number, since_arg, timeout_arg = ARGV
 since = Time.iso8601(since_arg)
-deadline = Time.now + Integer(timeout_arg || 1200)
+deadline = Time.now + Integer(timeout_arg || 600)
 
 loop do
   review = copilot_review_after(fetch_reviews(repo, number), since)
