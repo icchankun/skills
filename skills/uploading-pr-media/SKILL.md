@@ -1,6 +1,6 @@
 ---
 name: uploading-pr-media
-description: capturing-screens が撮った変更前後の画像と動画を `gh pr edit --attach` で GitHub に上げ、変更前と変更後を並べた表にして PR の本文に追記する。動画は「動作確認」の見出しのすぐ下に置く。running-dev-flow から draft PR を出したあとに呼ばれるほか、「スクショを PR に貼って」「画像を PR に上げて」「変更前後を PR に載せて」と言われた場合に使う。gh 2.99 以上が必要。
+description: capturing-screens が撮った変更前後の画像と、recording-manual-checks が撮った動作確認の動画を `gh pr edit --attach` で GitHub に上げ、変更前と変更後を並べた表にして PR の本文に追記する。動画は「動作確認」の見出しのすぐ下に置く。running-dev-flow から draft PR を出したあとに呼ばれるほか、「スクショを PR に貼って」「画像を PR に上げて」「変更前後を PR に載せて」と言われた場合に使う。gh 2.99 以上が必要。
 ---
 
 # uploading-pr-media
@@ -11,7 +11,7 @@ description: capturing-screens が撮った変更前後の画像と動画を `gh
 
 ## 1. 上げるファイルを確かめる
 
-dev-flow.md の「画面」の表と動画（mp4）を、`$(git rev-parse --absolute-git-dir)/dev-flow-media/` のファイルと突き合わせる。表にあってファイルがないものは、capturing-screens に戻る。
+dev-flow.md の「画面」の表と動画（mp4）を、`$(git rev-parse --absolute-git-dir)/dev-flow-media/` のファイルと突き合わせる。表にあってファイルがないものは capturing-screens に、動画がないときは recording-manual-checks に戻る。
 
 添付の URL は PR を見られる人なら誰でも開けるので、上げる前に、画像と動画に個人情報や秘密の値が写っていないかを見る。
 
