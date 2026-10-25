@@ -18,9 +18,9 @@ description: まだマージされていない PR の上に積む作業を、gh 
 
 ```
 main
- └─ feat/a ── worktree A ── PR #1   (1層目)
-     └─ feat/b ── worktree B ── PR #2   (2層目)
-         └─ feat/c ── worktree C ── PR #3   (3層目)
+`-> feat/a, worktree A, PR #1（1層目）
+    `-> feat/b, worktree B, PR #2（2層目）
+        `-> feat/c, worktree C, PR #3（3層目）
 ```
 
 スタックは一直線にしかできないので、同じ層から2本に分かれる作業は別のスタックにする。

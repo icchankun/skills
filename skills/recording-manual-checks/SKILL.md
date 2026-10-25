@@ -10,18 +10,9 @@ description: 動作確認の項目（planning-manual-checks が dev-flow.md に�
 撮り方・部品・ブラウザの扱いは `recording-browser-videos` に従う。
 
 ```
-planning-manual-checks   動作確認の項目を dev-flow.md に書く
-        |
-        v
-recording-manual-checks  項目を場面に書き起こし、期待する結果を確かめる
-        |
-        |  撮り方・部品を使う
-        v
-recording-browser-videos record-scenes.sh で撮ってつなぎ、checks.mp4 にする
-        ^
-        |  ブラウザの決まりに従う
-        |
-capturing-screens        変更前後のスクショを撮る
+planning-manual-checks -> recording-manual-checks: 動作確認の項目を渡す
+recording-manual-checks -> recording-browser-videos: 撮り方と部品を使う
+capturing-screens -> recording-browser-videos: ブラウザの決まりに従う
 ```
 
 撮るのは、Agent ツールのサブエージェント（`model: sonnet`）に任せる。項目・アプリの URL・置き場所を渡し、この skill と `recording-browser-videos` に従わせる。Opus と撮り比べて出来はほぼ変わらず、時間は3分の1で済んだため。
