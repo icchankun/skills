@@ -1,10 +1,13 @@
 ---
 name: checking-pr-checklists
 description: 他人の PR を確かめるときに、コードの正しさ以外の観点（チケットと合っているか、migration は戻せるか、API は後方互換か、依存は要るか、権限は変わったか、など）を、PR の種類ごとのチェックリストで1項目ずつ確かめ、pass / fail / 判断できない で返す。ユーザーに影響する種類（UI・API・権限・migration）に当てはまるかも返す。reviewing-pull-requests から呼ばれるほか、「この PR の観点を確認して」「チェックリストで見て」と言われた場合に使う。バグ探しは /code-review、セキュリティは /security-review の役割で、この skill では見ない。
-argument-hint: "<PR番号 または URL>"
 ---
 
 # checking-pr-checklists
+
+```
+/checking-pr-checklists <PR番号 または URL>
+```
 
 「この種類の変更なら、ここを確かめる」という観点を、PR の種類ごとのチェックリストで確かめる。バグ探しとセキュリティは見ない。
 

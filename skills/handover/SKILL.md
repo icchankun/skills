@@ -1,7 +1,6 @@
 ---
 name: handover
 description: 現在のセッションの作業内容・意思決定・捨てた選択肢を整理し、引数で指定したagentにSendMessageで渡す。「引き継ぎを送って」「handover」「このペインに引き継いで」「作業内容を渡して」「別のセッションに引き継ぎたい」と言及された場合に使用する。宛先のagent名が必須で、指定がなければ渡さずに宛先を尋ねる。
-argument-hint: "<agent名>"
 ---
 
 # /handover

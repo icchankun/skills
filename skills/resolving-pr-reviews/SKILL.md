@@ -1,7 +1,6 @@
 ---
 name: resolving-pr-reviews
 description: PRの未解決レビュースレッドを取得し、修正・コミット・push・返信を行う。push するたびに Copilot に再レビューを依頼し、新しい指摘がなくなるまで繰り返す。「レビュー対応」「レビューコメント修正」「指摘対応」「PR修正」「Copilotの指摘を直して」と言及された場合に使用する。
-argument-hint: "<PR番号> [--once]"
 ---
 
 # PRレビュースレッド対応
