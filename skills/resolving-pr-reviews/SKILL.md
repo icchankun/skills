@@ -93,7 +93,7 @@ ruby ~/.claude/skills/resolving-pr-reviews/scripts/fetch_pr_comments.rb "$REPO" 
 
 「直す」のスレッドをまとめて実装し、変更したファイルに関係するテストや lint を実行する。
 
-**ready の PR:** `/committing-git-changes` で新しいコミットを作成する。`/committing-git-changes` のユーザー確認はステップ4に回し、ここでは取らない。
+**ready の PR:** `/committing-git-changes` で新しいコミットを作成する。直したスレッドごとに最初のコメントの URL（ステップ1で取った `url`）を渡し、「なぜ必要なのか？」の先頭に置いてもらう。1件なら `[レビューコメント](<URL>) の対応です`、2件以上なら「以下のレビューコメントの対応です」の下に URL を箇条書きで並べる。`/committing-git-changes` のユーザー確認はステップ4に回し、ここでは取らない。
 
 **draft の PR:** 直した箇所を入れたコミットを `git log` と `git blame` で探し、そのコミットに fixup して並べ直す。
 
