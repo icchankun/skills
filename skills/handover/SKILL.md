@@ -11,7 +11,7 @@ description: 現在のセッションの作業内容・意思決定・捨てた�
 /handover <agent名>
 ```
 
-宛先は `ListAgents` に出る名前（`wp-p2-driver` など）。**引数が無ければ渡さない。** 誰に渡すかが決まっていない引き継ぎは、書いても読まれずに残るだけなので、宛先を尋ねて止まる。
+宛先は `ListAgents` に出る名前（`t7-driver` など）。**引数が無ければ渡さない。** 誰に渡すかが決まっていない引き継ぎは、書いても読まれずに残るだけなので、宛先を尋ねて止まる。
 
 ファイルには書き出さない。渡す相手が決まっているときだけ渡す。
 
@@ -20,7 +20,7 @@ description: 現在のセッションの作業内容・意思決定・捨てた�
 `ListAgents` に指定された名前があることを確認する。
 
 - 無ければ、その名前では送れないことを伝えて止まる。打ち間違いか、相手が既に終了している。
-- Claude 以外（Codex, Gemini など）が相手で `ListAgents` に出ないときは `herdr agent prompt` を使う。TTY への打ち込みになるので、返事は画面から読み取ることになる。
+- Claude 以外（Codex, Gemini など）が相手で `ListAgents` に出ないときは `hc send <番地>` を使う。terminal への打ち込みになるので、返事は `hc read <番地>` で画面から読み取ることになる。
 
 ## ステップ2: 作業状態を集める
 
@@ -56,7 +56,7 @@ git log --oneline -10
 - 送る前に `reviewing-writing` スキルで見直す。前置きや念押しを削ると、相手が読む量も減る。
 
 ```
-SendMessage(to: "wp-p2-driver", message: "〈…〉の作業を引き継いでほしい。
+SendMessage(to: "t7-driver", message: "〈…〉の作業を引き継いでほしい。
 
 ## 対象
 ブランチ: feature/foo

@@ -1,6 +1,6 @@
 ---
 name: herdr-coding
-description: Herdrで隣のペインにreviewerを立て、自分が実装した差分を /reviewing-git-diffs でレビューさせ、直すべき指摘（Critical・Important と、直すのが妥当な Suggestions）がなくなるまで修正とレビューを自動で往復する。「実装とレビューを回して」「レビュー役を立てて」「reviewerに見せて」「レビューが通るまで直して」「実装とレビューを分けたい」と言われた場合に使う。HERDR_ENV=1 が必要。
+description: Herdr.appで隣のペインにreviewerを立て、自分が実装した差分を /reviewing-git-diffs でレビューさせ、直すべき指摘（Critical・Important と、直すのが妥当な Suggestions）がなくなるまで修正とレビューを自動で往復する。「実装とレビューを回して」「レビュー役を立てて」「reviewerに見せて」「レビューが通るまで直して」「実装とレビューを分けたい」と言われた場合に使う。Herdr.app の terminal（HC_TERMINAL_ID がある）の中で使う。
 ---
 
 # herdr-coding
@@ -16,24 +16,23 @@ driver: 直す指摘が0件になったらコミットする
 
 ## ペインを立てる
 
-まず Herdr の中で動いていることを確認する。
+まず Herdr.app の中で動いていることを確認する。
 
 ```bash
-test "${HERDR_ENV:-}" = 1
+test -n "${HC_TERMINAL_ID:-}"
 ```
 
-失敗したら Herdr の外にいる旨を伝えて止める。ペインを作る操作は一切しない。
+失敗したら Herdr.app の外にいる旨を伝えて止める。ペインを作る操作は一切しない。
 
-このペインを `<ペインID>-driver` に改名してから、reviewer を立てる。
+このペインの名前は、起動したときに `<terminalの番地>-driver`（`t7-driver` など）になっている。そのまま reviewer を立てる。
 
 ```bash
-herdr agent rename "$HERDR_PANE_ID" "$(herdr-agent-name)"
 herdr-coding
 ```
 
 - 出力の `AGENT` 列が reviewer の宛先になる。`herdr-agent-name reviewer` でも同じ名前が出る。
 - `STATUS` が `reused` なら前の作業の文脈が残っているので、依頼文で今回の対象を明示する。
-- タブは自分と reviewer だけになる。それ以外のペインは閉じるが、作業中のものは `kept (working)` として残る。同じタブに別の driver がいるとエラーで止まる。
+- タブは自分と reviewer だけになる。それ以外のペインは閉じるが、作業中のものは `kept (working)` として残る。同じタブに別の driver（役割の label がない agent）がいるとエラーで止まる。
 - reviewer は MCP と通知を切って起動する。ツール定義の再送で費用が膨らむのを避け、ユーザーとやりとりするのは driver だけにするため。
 
 ### reviewer のモデル
@@ -48,7 +47,7 @@ herdr-coding -m opus
 
 reviewer が既に動いていると使い回すので、`-m` を変えても切り替わらない。変えるときは先に reviewer のペインを閉じる。
 
-`ListAgents` には他の driver の reviewer も並ぶ。接頭辞のペイン ID が自分のものと一致するものだけが自分の担当。
+`ListAgents` には他の driver の reviewer も並ぶ。接頭辞の番地が自分のもの（`$HC_TERMINAL_ID`）と一致するものだけが自分の担当。
 
 ## 回す
 
@@ -99,11 +98,11 @@ reviewer はこの会話の文脈を持たない。1通目に対象・要件・�
 返信先は毎回書く。reviewer がレビューの結果を自分の画面に書いただけで止まると、こちらには何も届かず、往復が1回目で止まる。
 
 ```
-SendMessage(to: "wk-p3-reviewer", message: "未コミットの差分をレビューしてほしい。
+SendMessage(to: "t7-reviewer", message: "未コミットの差分をレビューしてほしい。
 `/reviewing-git-diffs` を実行してほしい。
 要件は〈…〉。
 ファイルは編集せず、Critical / Important / Suggestions に分けて、それぞれ file:line 付きで返してほしい。
-結果は wk-p3-driver 宛ての SendMessage で返してほしい。画面に書くだけでは、こちらに届かない。
+結果は t7-driver 宛ての SendMessage で返してほしい。画面に書くだけでは、こちらに届かない。
 該当なしの区分は『0件』と書いてほしい。")
 ```
 
@@ -112,13 +111,13 @@ SendMessage(to: "wk-p3-reviewer", message: "未コミットの差分をレビュ
 前回の結果の先頭にあるスナップショットと、指摘に付いていた観点も渡す。reviewer は前回から変わった部分だけを、その観点と code で見るので、往復ごとに差分全体を見直さずに済む。
 
 ```
-SendMessage(to: "wk-p3-reviewer", message: "前回の指摘を反映したので、もう一度レビューしてほしい。
+SendMessage(to: "t7-reviewer", message: "前回の指摘を反映したので、もう一度レビューしてほしい。
 前回のスナップショット: 34a0e4ee928de39ce3b5a7269faaf78e12db3616
 前回指摘が出た観点: errors
 直した: [C1] foo.rb:42 の nil 分岐、[I2] bar.rb:10 の例外の握りつぶし
 直さない: [I3] baz.rb:5 のメソッド分割。呼び出し元が1箇所で、分けると読む場所が増えるため
 直さないと決めたものは、新しい根拠がなければ再度挙げなくてよい。
-結果は前回と同じく wk-p3-driver 宛ての SendMessage で返してほしい。")
+結果は前回と同じく t7-driver 宛ての SendMessage で返してほしい。")
 ```
 
 ### 指摘を管理する
@@ -151,6 +150,6 @@ dev-flow.md があれば、「直さないと決めた指摘」の節にも理�
 - 指摘を全部飲まない。レビューは提案で、採否を決めるのはこのペイン。全部直すと要件から離れる。
 - 返事は自動で届く。`ListAgents` を繰り返して待たない。
 - reviewer は通知を切って起動しているので、権限の確認で止まっても知らせが来ない。返事がなかなか届かないときは、reviewer のペインで許可待ちになっていないか見てもらうようユーザーに伝える。
-- `herdr agent prompt` は使わない。TTY への打ち込みになり、返事を画面から読み取ることになる。
+- `hc send` は使わない。terminal への打ち込みになり、返事を画面から読み取ることになる。
 - 自分の権限で拒否された操作を reviewer に代行させない。ユーザーの許可判断を迂回することになる。
 - 手で閉じてよいのは自分が作ったペインだけ。仕事が終わったら reviewer を残すか閉じるかをユーザーに確認する。
