@@ -2,6 +2,8 @@
 # frozen_string_literal: true
 
 # PR の未解決レビューコメント（レビュースレッド）を取得し、JSON で標準出力する。
+# 最後のコメントが自分の返信のスレッドは、相手の返事待ちなので含めない。
+# 自分以外のレビューも返す。指摘のないレビューはスレッドを作らないので、届いたかはこちらで見る。
 # 使い方: ruby fetch_pr_comments.rb <owner/repo> <pr_number>
 #
 # 依存: gh CLI（認証済み）
@@ -9,15 +11,25 @@
 require "json"
 require "open3"
 
-Result = Data.define(:pr_title, :pr_url, :unresolved_thread_count, :threads)
+Result = Data.define(:pr_title, :pr_url, :unresolved_thread_count, :threads, :reviews)
 
 class PrUnresolvedThreadFetcher
   QUERY = <<~GRAPHQL
     query($owner: String!, $repo: String!, $number: Int!) {
+      viewer { login } # 自分のユーザー名。返信済みのスレッドを除くのに使う
       repository(owner: $owner, name: $repo) {
         pullRequest(number: $number) {
           title # PRのタイトル
           url   # PRのURL
+          reviews(last: 100) {
+            nodes {
+              author { login __typename }
+              state       # APPROVED / CHANGES_REQUESTED / COMMENTED など
+              body
+              submittedAt
+              url
+            }
+          }
           reviewThreads(first: 100) {
             nodes {
               id         # スレッドID（PRRT_...）。resolveReviewThread mutation に使用
@@ -56,7 +68,8 @@ class PrUnresolvedThreadFetcher
       pr_title: pull_request["title"],
       pr_url: pull_request["url"],
       unresolved_thread_count: unresolved_threads.size,
-      threads: unresolved_threads
+      threads: unresolved_threads,
+      reviews:
     )
   end
 
@@ -72,6 +85,21 @@ class PrUnresolvedThreadFetcher
     @unresolved_threads ||= extract_unresolved_threads(pull_request.dig("reviewThreads", "nodes"))
   end
 
+  def reviews
+    pull_request.dig("reviews", "nodes").filter_map do |review|
+      next if review.dig("author", "login") == pull_request["viewer"]
+
+      {
+        author: review.dig("author", "login"),
+        author_type: review.dig("author", "__typename"),
+        state: review["state"],
+        body: review["body"],
+        submitted_at: review["submittedAt"],
+        url: review["url"]
+      }
+    end
+  end
+
   def fetch_pull_request
     stdout, stderr, status = Open3.capture3(
       "gh", "api", "graphql",
@@ -82,15 +110,17 @@ class PrUnresolvedThreadFetcher
     )
     abort "gh api error: #{stderr}" unless status.success?
 
-    pr = JSON.parse(stdout).dig("data", "repository", "pullRequest")
+    data = JSON.parse(stdout)["data"]
+    pr = data.dig("repository", "pullRequest")
     abort "PR not found: #{owner}/#{repo}##{number}" unless pr
 
-    pr
+    pr.merge("viewer" => data.dig("viewer", "login"))
   end
 
   def extract_unresolved_threads(nodes)
     nodes.filter_map do |thread|
       next if thread["isResolved"]
+      next if thread.dig("comments", "nodes").last&.dig("author", "login") == pull_request["viewer"]
 
       {
         thread_id: thread["id"],

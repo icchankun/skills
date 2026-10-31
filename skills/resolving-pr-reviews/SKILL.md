@@ -1,6 +1,6 @@
 ---
 name: resolving-pr-reviews
-description: PRの未解決レビュースレッドを取得し、修正・コミット・push・返信を行う。push するたびに Copilot に再レビューを依頼し、新しい指摘がなくなるまで繰り返す。「レビュー対応」「レビューコメント修正」「指摘対応」「PR修正」「Copilotの指摘を直して」と言及された場合に使用する。
+description: PRの未解決レビュースレッドを取得し、修正・コミット・push・返信を行う。push するたびに Copilot に再レビューを依頼し、新しい指摘がなくなるまで繰り返す。終えたあとも PR が開いているあいだは新しい指摘と人のレビューを1分ごとに見張り、届いたら対応を再開する。「レビュー対応」「レビューコメント修正」「指摘対応」「PR修正」「Copilotの指摘を直して」と言及された場合に使用する。
 ---
 
 # PRレビュースレッド対応
@@ -23,6 +23,9 @@ description: PRの未解決レビュースレッドを取得し、修正・コ�
 5. push して Copilot に再レビューを頼み、返信して resolve する
 6. Copilot の再レビューが届くまで待つ
    `-> 1. に戻る
+7. 結果を報告する
+8. 新しい指摘を待つ（PR が開いているあいだ）
+   `-> 届いたら 1. に戻る
 ```
 
 ユーザーに止めて確認を取るのは、ready の PR でのステップ4の push 前と、ステップ2で判断が要る指摘があったときだけ。
@@ -174,10 +177,16 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 
 `--once` のとき、またはステップ5-3の依頼が通らなかったときはスキップして、ステップ7へ進む。
 
-待機スクリプトを Bash の `run_in_background: true` で起動する。第3引数はステップ5-1で記録した時刻:
+`fetch_pr_comments.rb` を30秒ごとに回すループを Bash の `run_in_background: true` で起動する。`since` はステップ5-1で記録した時刻。指摘のないレビューはスレッドを作らないので、スレッドの数ではなく、Copilot のレビューが `since` より後に届いたかで見る:
 
 ```bash
-ruby ~/.claude/skills/resolving-pr-reviews/scripts/wait_for_copilot_review.rb "$REPO" <PR番号> <push前の時刻> 600
+since=<push前の時刻>
+for _ in $(seq 20); do
+  out=$(ruby ~/.claude/skills/resolving-pr-reviews/scripts/fetch_pr_comments.rb "$REPO" <PR番号>) || exit 1
+  jq -e --arg since "$since" 'any(.reviews[]; (.author | startswith("copilot-pull-request-reviewer")) and .submitted_at > $since)' <<<"$out" >/dev/null && { printf '%s\n' "$out"; exit 0; }
+  sleep 30
+done
+exit 2
 ```
 
 終了すると通知が届くので、`sleep` やポーリングを自分で繰り返さない。
@@ -192,7 +201,7 @@ gh pr checks <PR番号> --json name,state,link --jq '.[] | select(.state == "FAI
 
 - exit 0: レビューが届いた。ラウンドを1つ進めてステップ1に戻る
 - exit 2: 10分待っても届かなかった。ステップ7へ進み、再レビューが届いていないことを伝える
-- それ以外: `gh api` が失敗した。エラー内容を添えてステップ7へ進む
+- それ以外: `gh` が失敗した。エラー内容を添えてステップ7へ進む
 
 ## ステップ7: 結果報告
 
@@ -222,6 +231,29 @@ gh pr ready <PR番号>
 ```
 
 報告の終了理由の下に「ready にした」と書く。ほかの終了理由では ready にしない。指摘が残っているか、まだ確かめきれていないため。
+
+## ステップ8: 新しい指摘を待つ
+
+報告したら、`fetch_pr_comments.rb` を1分ごとに回すループを Bash の `run_in_background: true` で起動してからターンを終える。`--once` のときは起動しない。`since` は報告した時刻（`date -u +%Y-%m-%dT%H:%M:%SZ`）。
+
+```bash
+since=<報告した時刻>
+while :; do
+  out=$(ruby ~/.claude/skills/resolving-pr-reviews/scripts/fetch_pr_comments.rb "$REPO" <PR番号>) || exit 1
+  jq -e --arg since "$since" '.unresolved_thread_count > 0 or any(.reviews[]; .author_type == "User" and .submitted_at > $since)' <<<"$out" >/dev/null && { printf '%s\n' "$out"; exit 0; }
+  state=$(gh pr view <PR番号> -R "$REPO" --json state -q .state) || exit 1
+  [ "$state" = OPEN ] || exit 3
+  sleep 60
+done
+```
+
+待つあいだはトークンを使わない。直したスレッドは resolve し、直さないスレッドは最後が自分の返信になっているので、どちらも数えない。新しい行へのコメントか、人のレビュー（承認を含む）で止まる。PR 全体へのコメント（Conversation 欄）は見ない。
+
+- exit 0: 届いた。ステップ1に戻る。人のレビューの本文は出力の `reviews` から読み、ステップ2で同じように仕分け、`gh pr comment` で返信する。承認だけなら、承認されたことを伝えて、もう一度このステップで起動する
+- exit 3: PR が閉じたかマージされた。その旨を伝えて終える
+- それ以外: `gh` が失敗した。エラー内容を伝えて終える
+
+見張りはこのセッションが開いているあいだだけ動く。セッションを閉じたら、開き直したときに `/resolving-pr-reviews <PR番号>` で拾い直す。
 
 ## 注意事項
 
