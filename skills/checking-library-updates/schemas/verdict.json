@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Library update verdict",
+  "description": "checking-library-updates が返す形。Codex の --output-schema に渡すので、全部の項目を required にし、省けるものは null を許す",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["packages", "breaking", "other_reviews", "verdict", "confident", "reasons", "summary"],
+  "properties": {
+    "packages": {
+      "description": "この PR で上がるパッケージ・イメージ・action",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "ecosystem", "from", "to", "scope", "category", "category_reason"],
+        "properties": {
+          "name": { "type": "string" },
+          "ecosystem": { "type": "string", "enum": ["bundler", "npm", "docker", "github-actions"] },
+          "from": { "type": ["string", "null"] },
+          "to": { "type": ["string", "null"] },
+          "scope": {
+            "description": "development: 開発とテストでだけ使う / runtime: 本番でも使う / ci: CI でだけ使う（GitHub Actions など）",
+            "type": "string",
+            "enum": ["development", "runtime", "ci"]
+          },
+          "category": {
+            "description": "自分で見る種類に当たればその種類。当たらなければ none",
+            "type": "string",
+            "enum": ["none", "auth", "payment", "database", "crypto", "framework", "language-runtime"]
+          },
+          "category_reason": { "description": "その種類だと判断した根拠（説明文・使っている場所）", "type": "string" }
+        }
+      }
+    },
+    "breaking": {
+      "description": "リリースノートにある breaking・deprecation・挙動の変更と、それをリポジトリで使っているか",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["package", "change", "used_in", "impact"],
+        "properties": {
+          "package": { "type": "string" },
+          "change": { "type": "string" },
+          "used_in": { "description": "使っている場所（file:line）。使っていなければ空", "type": "array", "items": { "type": "string" } },
+          "impact": { "type": "string", "enum": ["none", "possible", "breaks"] }
+        }
+      }
+    },
+    "other_reviews": {
+      "description": "PR に既に付いている AI レビュー（Claude・Copilot・GitHub Actions など）との突き合わせ",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source", "their_verdict", "agrees", "note"],
+        "properties": {
+          "source": { "type": "string" },
+          "their_verdict": { "type": "string" },
+          "agrees": { "type": "boolean" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "verdict": {
+      "description": "ok: 自動で approve してよい / needs_human: 自分で見る",
+      "type": "string",
+      "enum": ["ok", "needs_human"]
+    },
+    "confident": { "description": "判断に自信があるか。false なら呼び出し元が上のモデルで回し直す", "type": "boolean" },
+    "reasons": { "description": "needs_human の理由。ok なら空", "type": "array", "items": { "type": "string" } },
+    "summary": { "description": "PR のコメントに書く2〜3文の要約", "type": "string" }
+  }
+}
