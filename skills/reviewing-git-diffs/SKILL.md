@@ -74,13 +74,15 @@ Claude Code では下のとおり、1〜3 をプラグインのコマンドで�
 
 ### Codex のとき
 
-1〜3 の観点を、自分で差分に当てる。どれもファイルは編集しない。
+1〜3 の代わりに、[reviewing-pull-requests の観点](../reviewing-pull-requests/references/viewpoints.md) を自分で差分に当てる。ファイルは編集しない。
 
-| 代わりにするもの | 見ること |
+| 代わりにするもの | 当てる観点 |
 |---|---|
-| 1 の review-pr | バグ、エラー処理（握りつぶし・失敗の伝わり方）、テストの抜け、コメントと実装のずれ、型・スキーマの定義。上の「観点を選ぶ」で選んだものだけ見る |
-| 2 の ponytail-review | 標準ライブラリで済む手書き、要らない依存、実装が1つだけの抽象化、使われていないコード |
-| 3 の security-review | 入力の検証、インジェクション、認証・権限の抜け、秘密情報の扱い |
+| 1 の review-pr | code・errors・tests・comments・types のうち、上の「観点を選ぶ」で選んだもの |
+| 2 の ponytail-review | simplify |
+| 3 の security-review | security |
+
+重さは、観点の表の must を Critical、should を Important、nit を Suggestions に読み替える。
 
 4 は Claude Code と同じ。`multi_agent` が有効でサブエージェントを使えるなら、1〜3 と 4 を分けて並列に動かしてよい。
 

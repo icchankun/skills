@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PR review findings",
+  "description": "reviewing-pull-requests と checking-review-findings が返す形。Codex の --output-schema に渡すので、全部の項目を required にし、省けるものは null を許す",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["good_points", "scope_note", "findings", "previous", "dropped"],
+  "properties": {
+    "good_points": {
+      "description": "レビューコメントの冒頭に書く、分かりやすかった設計や整理。1〜2個。2回目以降は空",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "scope_note": {
+      "description": "見なかった範囲とその理由（例: 管理画面だけの変更でした。そのため、API への影響は指摘していません）。なければ null",
+      "type": ["string", "null"]
+    },
+    "findings": {
+      "description": "今回の指摘",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "severity", "file", "line", "title", "body", "suggestion", "evidence"],
+        "properties": {
+          "id": {
+            "description": "<ラウンド>-<連番>（1-1, 1-2, 2-1 …）",
+            "type": "string",
+            "pattern": "^[0-9]+-[0-9]+$"
+          },
+          "severity": { "type": "string", "enum": ["must", "should", "nit"] },
+          "file": { "description": "リポジトリのルートからのパス", "type": "string" },
+          "line": {
+            "description": "新しい側の行番号。差分の hunk の中の行だけ。hunk の外や消した行についての指摘は null にし、インラインには付けない",
+            "type": ["integer", "null"]
+          },
+          "title": { "description": "一覧に出す1行（レビューコメントの [must] xxx の xxx）", "type": "string" },
+          "body": { "description": "インライン指摘の本文。何が起きるかを具体的に", "type": "string" },
+          "suggestion": { "description": "直し方の案。なければ null", "type": ["string", "null"] },
+          "evidence": {
+            "description": "根拠。該当するコードと、そう判断した理由。advisor が確かめるのに使い、PR には出さない",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "previous": {
+      "description": "前回までの指摘がどうなったか。advisor が2回目以降に書く。reviewer と1回目は空",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "note"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[0-9]+-[0-9]+$" },
+          "status": {
+            "description": "resolved: 直った / explained: 作者の説明が妥当で直さなくてよい / unresolved: 残っている",
+            "type": "string",
+            "enum": ["resolved", "explained", "unresolved"]
+          },
+          "note": { "description": "対応後のコメントに書く1文（xxx が解消しています、xxx という説明に納得しました など）", "type": "string" }
+        }
+      }
+    },
+    "dropped": {
+      "description": "advisor が落とした指摘と理由。reviewer は空",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "reason"],
+        "properties": {
+          "id": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}
