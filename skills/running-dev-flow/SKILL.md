@@ -1,6 +1,6 @@
 ---
 name: running-dev-flow
-description: Claude Code 専用。引き継がれた worktree で、リポジトリの流儀の確認から実装・レビューの往復・コミット・画面の撮影・draft PR・Copilot の指摘への対応までを、決まった順に進めるまとめ役。手順と状態を dev-flow.md に書き、コンパクトや /clear の後も続きから動く。handover で作業を引き継いだとき、dispatching-tasks から渡されたとき、「実装を始めて」「PR まで進めて」と言われた場合に使う。各手順のやり方は呼び出す skill に任せ、ここでは順番と次へ進む条件だけを決める。
+description: 引き継がれた worktree で、リポジトリの流儀の確認から実装・レビューの往復・コミット・画面の撮影・draft PR・Copilot の指摘への対応までを、決まった順に進めるまとめ役。手順と状態を dev-flow.md に書き、コンパクトや会話のリセットの後も続きから動く。handover で作業を引き継いだとき、dispatching-tasks から渡されたとき、「実装を始めて」「PR まで進めて」と言われた場合に使う。各手順のやり方は呼び出す skill に任せ、ここでは順番と次へ進む条件だけを決める。
 ---
 
 # running-dev-flow
@@ -16,7 +16,8 @@ description: Claude Code 専用。引き継がれた worktree で、リポジト
 ```
 
 - `.git` の中なので commit されず、`git wt -D` で worktree と一緒に消える。
-- SessionStart の hook がコンパクトや `/clear` の後に中身を読み込ませる。会話が縮んでも、ここを読めば続きから動ける。
+- hook は Claude Code では `~/.claude/settings.json`、Codex では `~/.codex/hooks.json` に入っていて、どちらも `~/.bin/dev-flow-hook` を呼ぶ。動きは同じ。
+- SessionStart の hook がコンパクトや会話のリセット（Claude Code は `/clear`、Codex は `/new`）の後に中身を読み込ませる。会話が縮んでも、ここを読めば続きから動ける。
 - Stop の hook は、「状態」が `作業中` で未完了の手順があるとき、終わらせない。reviewer やユーザーの返事を待つときは、状態を `reviewer 待ち` か `ユーザー待ち` に書き換えてからターンを終える。書き換えないと返事を受け取れない。
 - UserPromptSubmit の hook は、ユーザーが返事をすると `ユーザー待ち` を `作業中` に戻す。自分で戻さなくてよい。
 
@@ -56,7 +57,7 @@ description: Claude Code 専用。引き継がれた worktree で、リポジト
 
 「なぜ」には、引き継ぎで受け取った背景・課題・対応方針を書く。コミットメッセージと PR の「なぜ必要なのか？」はここから書く。
 
-手順を1つ終えるたびに、チェックを付けて保存する。セッションの todo（TaskCreate）は表示用で、正は dev-flow.md にする。
+手順を1つ終えるたびに、チェックを付けて保存する。セッションの todo（Claude Code は TaskCreate、Codex は update_plan）は表示用で、正は dev-flow.md にする。
 
 手順を始めるときと終えるときに、その行の末尾へ時刻（`date +%H:%M`）を書く。時間のかかる手順を、あとから数字を見て縮めるため。
 
@@ -72,8 +73,8 @@ description: Claude Code 専用。引き継がれた worktree で、リポジト
 | 1 | リポジトリの流儀を調べる | following-repo-conventions | 「流儀のメモ」が書けた |
 | 2 | 実装し、レビューと往復する | herdr-coding | 直すと決めた指摘が残っていない。コミット済み |
 | 3 | 動作確認の項目を決める | planning-manual-checks | 「動作確認」が書けた。「テストを足すもの」があれば手順 2 に戻してテストを足し、コミットしてから進む |
-| 4 | 画面を撮る | capturing-screens（Sonnet のサブエージェントに任せる） | 「画面」の表が書けた。画面に変更がなければ飛ばす |
-| 5 | 動作確認の動画を撮る | recording-manual-checks（Sonnet のサブエージェントに任せる） | 「画面」に動画のファイル名が書けた。4 を飛ばしたら飛ばす |
+| 4 | 画面を撮る | capturing-screens（サブエージェントに任せる） | 「画面」の表が書けた。画面に変更がなければ飛ばす |
+| 5 | 動作確認の動画を撮る | recording-manual-checks（サブエージェントに任せる） | 「画面」に動画のファイル名が書けた。4 を飛ばしたら飛ばす |
 | 6 | draft PR を出す | creating-pull-requests | PR の URL が出た。dev-flow.md に書く |
 | 7 | 画像と動画を PR に貼る | uploading-pr-media | PR の本文に表と動画が入った。4 を飛ばしたら飛ばす |
 | 8 | Copilot の指摘に対応する | resolving-pr-reviews | 新しい指摘がなくなった |
@@ -86,7 +87,7 @@ description: Claude Code 専用。引き継がれた worktree で、リポジト
 
 ## 待つあいだに進めること
 
-手順は上の順に終えるが、待ち時間には次の手順の準備を進める。トークンを増やさずに、待ち時間だけを重ねられるため。裏で動かすコマンドは Bash の `run_in_background: true` で起動し、終わった知らせを待つ。
+手順は上の順に終えるが、待ち時間には次の手順の準備を進める。トークンを増やさずに、待ち時間だけを重ねられるため。裏で動かすコマンドは `hc run --bg --name <名前> …` で起動し、`hc wait <名前>` で待つ。Claude Code でも Codex でも同じ書き方で動き、待つあいだも reviewer からの返事を受け取れる。
 
 | 待っているもの | そのあいだに進めること |
 |---|---|
@@ -98,7 +99,7 @@ description: Claude Code 専用。引き継がれた worktree で、リポジト
 
 変更前の画面は、2 の実装に入る前に撮ってよい（capturing-screens の 3）。ベースブランチは作業の途中で変わらないため。
 
-ファイルの編集も、同じ応答の中で Edit を並べて出す。サブエージェントに分けるのは、互いに関係しない機械的な変更が3ファイル以上あるときだけにし、`model: haiku` にする。何をどう変えるかは自分で決めて渡すため。サブエージェントは起動のたびに要件と周りのコードを読み直すので、小さな変更では自分で書くより遅く、トークンも増える。
+ファイルの編集も、同じ応答の中でまとめて出す（Claude Code は Edit を並べ、Codex は1つの apply_patch に複数のファイルを入れる）。サブエージェントに分けるのは、互いに関係しない機械的な変更が3ファイル以上あるときだけにする。何をどう変えるかは自分で決めて渡すので、いちばん軽いモデル（Claude Code は `haiku`、Codex は `gpt-6-luna`）でよい。サブエージェントは起動のたびに要件と周りのコードを読み直すので、小さな変更では自分で書くより遅く、トークンも増える。
 
 ## 不具合を見つけたとき
 

@@ -177,7 +177,7 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 
 `--once` のとき、またはステップ5-3の依頼が通らなかったときはスキップして、ステップ7へ進む。
 
-`fetch_pr_comments.rb` を30秒ごとに回すループを Bash の `run_in_background: true` で起動する。`since` はステップ5-1で記録した時刻。指摘のないレビューはスレッドを作らないので、スレッドの数ではなく、Copilot のレビューが `since` より後に届いたかで見る:
+`fetch_pr_comments.rb` を30秒ごとに回すループを一時ファイルのスクリプトに書き、`hc run --bg --name copilot-wait bash <スクリプト>` で起動する。`since` はステップ5-1で記録した時刻。指摘のないレビューはスレッドを作らないので、スレッドの数ではなく、Copilot のレビューが `since` より後に届いたかで見る:
 
 ```bash
 since=<push前の時刻>
@@ -189,7 +189,7 @@ done
 exit 2
 ```
 
-終了すると通知が届くので、`sleep` やポーリングを自分で繰り返さない。
+`hc wait copilot-wait` で終わるのを待ち、`hc read copilot-wait` で出力を読む。終わったら `hc rm copilot-wait` で消す。`sleep` やポーリングを自分で繰り返さない。
 
 待つあいだに CI の結果も見て、失敗を拾う。
 
@@ -234,7 +234,7 @@ gh pr ready <PR番号>
 
 ## ステップ8: 新しい指摘を待つ
 
-報告したら、`fetch_pr_comments.rb` を1分ごとに回すループを Bash の `run_in_background: true` で起動してからターンを終える。`--once` のときは起動しない。`since` は報告した時刻（`date -u +%Y-%m-%dT%H:%M:%SZ`）。
+報告したら、`fetch_pr_comments.rb` を1分ごとに回すループを一時ファイルのスクリプトに書き、`hc run --bg --name review-wait bash <スクリプト>` で起動してからターンを終える。終わると、その知らせが次の入力として届くので、`hc read review-wait` で出力を読み、`hc rm review-wait` で消す。`--once` のときは起動しない。`since` は報告した時刻（`date -u +%Y-%m-%dT%H:%M:%SZ`）。
 
 ```bash
 since=<報告した時刻>

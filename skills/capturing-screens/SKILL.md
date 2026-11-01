@@ -38,7 +38,7 @@ session="capture-$(basename "$(git rev-parse --show-toplevel)")"
 
 ブラウザの扱いは `recording-browser-videos` の「ブラウザの扱い」に従う。セッション名は 2 の `$session`、ログインの状態は worktree の git dir の `browser-auth.json` を使う。
 
-3 と 4 の `playwright-cli` は1つのスクリプト（`$media/capture.sh`）に書き、`run_in_background: true` で動かす。別のシェルで動いて 2 の値は引き継がれないので、先頭で `media` と `session` を 2 と同じように決め、`trap` でどう終わっても閉じる。
+3 と 4 の `playwright-cli` は1つのスクリプト（`$media/capture.sh`）に書き、`hc run --bg --name capture bash "$media/capture.sh"` で動かして `hc wait capture` で待つ。別のシェルで動いて 2 の値は引き継がれないので、先頭で `media` と `session` を 2 と同じように決め、`trap` でどう終わっても閉じる。
 
 ```bash
 set -e

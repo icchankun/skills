@@ -1,14 +1,14 @@
 ---
 name: herdr-coding
-description: Claude Code 専用。Herdr.appで隣のペインにreviewerを立て、自分が実装した差分を /reviewing-git-diffs でレビューさせ、直すべき指摘（Critical・Important と、直すのが妥当な Suggestions）がなくなるまで修正とレビューを自動で往復する。「実装とレビューを回して」「レビュー役を立てて」「reviewerに見せて」「レビューが通るまで直して」「実装とレビューを分けたい」と言われた場合に使う。Herdr.app の terminal（HC_TERMINAL_ID がある）の中で使う。
+description: Herdr.appで隣のペインにreviewerを立て、自分が実装した差分を reviewing-git-diffs でレビューさせ、直すべき指摘（Critical・Important と、直すのが妥当な Suggestions）がなくなるまで修正とレビューを自動で往復する。「実装とレビューを回して」「レビュー役を立てて」「reviewerに見せて」「レビューが通るまで直して」「実装とレビューを分けたい」と言われた場合に使う。Herdr.app の terminal（HC_TERMINAL_ID がある）の中で使う。
 ---
 
 # herdr-coding
 
-このペインが実装役（coder）を兼ね、隣に reviewer を1人立てる。reviewer の指摘は `SendMessage` の返信として直接このペインに届くので、間に誰も挟まずに往復できる。
+このペインが実装役（coder）を兼ね、隣に reviewer を1人立てる。reviewer の指摘は `hc send` でこのペインの次の入力として届くので、間に誰も挟まずに往復できる。driver と reviewer は Claude Code でも Codex でもよく、混ざっていても同じ手順で往復できる。
 
 ```
-driver -> reviewer: /reviewing-git-diffs でのレビューを頼む
+driver -> reviewer: reviewing-git-diffs でのレビューを頼む
 reviewer -> driver: 指摘を返す（ファイルは編集しない）
 driver: 妥当な指摘を直して、もう一度頼む
 driver: 直す指摘が0件になったらコミットする
@@ -24,30 +24,31 @@ test -n "${HC_TERMINAL_ID:-}"
 
 失敗したら Herdr.app の外にいる旨を伝えて止める。ペインを作る操作は一切しない。
 
-このペインの名前は、起動したときに `<terminalの番地>-driver`（`t7-driver` など）になっている。そのまま reviewer を立てる。
+自分の番地は `$HC_TERMINAL_ID`（`t7` など）。そのまま reviewer を立てる。
 
 ```bash
 herdr-coding
 ```
 
-- 出力の `AGENT` 列が reviewer の宛先になる。`herdr-agent-name reviewer` でも同じ名前が出る。
+- 出力の `TERMINAL` 列が reviewer の番地で、`hc send` の宛先になる。あとから探すときは `hc ls --label role=reviewer --label driver="$HC_TERMINAL_ID"`。
+- reviewer の agent は、既定では自分と同じ（Claude Code なら Claude Code、Codex なら Codex）。別の目で見てほしいときは `herdr-coding -a codex` のように変える。出力の `AGENT` 列に出る。
 - `STATUS` が `reused` なら前の作業の文脈が残っているので、依頼文で今回の対象を明示する。
-- タブは自分と reviewer だけになる。それ以外のペインは閉じるが、作業中のものは `kept (working)` として残る。同じタブに別の driver（役割の label がない agent）がいるとエラーで止まる。
-- reviewer は MCP と通知を切って起動する。ツール定義の再送で費用が膨らむのを避け、ユーザーとやりとりするのは driver だけにするため。
+- タブは自分と reviewer だけになる。それ以外のペインは閉じるが、作業中のものは `kept (working)` として残る。同じタブに別の driver（`role=driver` か、役割の label がない agent）がいるとエラーで止まる。
+- Claude Code の reviewer は MCP と通知を切って起動する。ツール定義の再送で費用が膨らむのを避け、ユーザーとやりとりするのは driver だけにするため。Codex の reviewer は承認を切って起動する。誰も見ていない確認で往復が止まらないようにするため。
 
 ### reviewer のモデル
 
-既定は Sonnet。レビューは毎ラウンド回るので、1回あたりの費用と待ち時間が積み上がる。review-pr の中でバグを探す code-reviewer は Opus に固定されているので、reviewer を Sonnet にしても見逃しの多い部分の精度は落ちない。
+既定は Claude Code なら `sonnet`、Codex なら `gpt-6.1-sol`（effort medium）。レビューは毎ラウンド回るので、1回あたりの費用と待ち時間が積み上がる。Claude Code では、review-pr の中でバグを探す code-reviewer が `opus` に固定されているので、reviewer を `sonnet` にしても見逃しの多い部分の精度は落ちない。
 
-認証・決済・データ移行など、見逃したときの影響が大きい変更では Opus にする。
+認証・決済・データ移行など、見逃したときの影響が大きい変更では、上のモデルにする（Claude Code は `opus`）。Codex は既定のままでよい。
 
 ```bash
 herdr-coding -m opus
 ```
 
-reviewer が既に動いていると使い回すので、`-m` を変えても切り替わらない。変えるときは先に reviewer のペインを閉じる。
+reviewer が既に動いていると使い回すので、`-a` や `-m` を変えても切り替わらない。変えるときは先に reviewer のペインを閉じる。
 
-`ListAgents` には他の driver の reviewer も並ぶ。接頭辞の番地が自分のもの（`$HC_TERMINAL_ID`）と一致するものだけが自分の担当。
+`hc ls` には他の driver の reviewer も並ぶ。`driver` のラベルが自分の番地（`$HC_TERMINAL_ID`）と一致するものだけが自分の担当。
 
 ## 回す
 
@@ -55,13 +56,13 @@ reviewer が既に動いていると使い回すので、`-m` を変えても切
 2. reviewer にレビューを依頼する。
 3. 返ってきた指摘を仕分けて直す。仕分けの基準は下の「Suggestions も直す」。直さないものは理由を決める。
 4. 2 に戻る。直すと決めた指摘が1つもない結果が返ってきたら 5 へ。Critical と Important は 0 件で、残った Suggestions はすべて「直さない」と決めたものになっている。
-5. ユーザーに報告し、続けて `/committing-git-changes` を呼ぶ。コミットの了解は `/committing-git-changes` の確認で取り、二重に聞かない。
+5. ユーザーに報告し、続けて `committing-git-changes` を使う。コミットの了解は `committing-git-changes` の確認で取り、二重に聞かない。
 
 2〜4 はユーザーに確認を取らずに回す。
 
 ### テストを流す
 
-手元で流すのは、変えたファイルに関係するテストだけにする。全体は CI が流すので、手元で繰り返すと待ち時間だけが増える。reviewer に依頼を送ったあと、返事を待つあいだに `run_in_background: true` で流す。
+手元で流すのは、変えたファイルに関係するテストだけにする。全体は CI が流すので、手元で繰り返すと待ち時間だけが増える。reviewer に依頼を送ったあと、返事を待つあいだに `hc run --bg --name tests …` で流し、`hc wait tests` で待つ。
 
 - rspec なら、変えたファイルに対応する spec を指定する（`app/models/order.rb` なら `spec/models/order_spec.rb`）。2回目からは `--only-failures` で、落ちたものだけを流し直す。
 - 出力は `--format progress` にして、失敗したところだけを読む。テストの出力は長く、そのまま読むとトークンを多く使うため。
@@ -93,36 +94,36 @@ ponytail-review の指摘（`P` の番号）は、直すと行数が減るとき
 
 依頼の前に、新しく作ったファイルを `git add -N <ファイル>` で追跡対象にする。レビューは `git diff` で対象を決めるので、untracked のままだとレビューされない。
 
-reviewer はこの会話の文脈を持たない。1通目に対象・要件・観点・返してほしい形式と、返信先（このペインの agent 名）を書く。
+reviewer はこの会話の文脈を持たない。1通目に対象・要件・観点・返してほしい形式と、返信先（このペインの番地）を書く。
 
 返信先は毎回書く。reviewer がレビューの結果を自分の画面に書いただけで止まると、こちらには何も届かず、往復が1回目で止まる。
 
-```
-SendMessage(to: "t7-reviewer", message: "未コミットの差分をレビューしてほしい。
-`/reviewing-git-diffs` を実行してほしい。
+```bash
+hc send t8 "未コミットの差分をレビューしてほしい。
+reviewing-git-diffs を使ってほしい。
 要件は〈…〉。
 ファイルは編集せず、Critical / Important / Suggestions に分けて、それぞれ file:line 付きで返してほしい。
-結果は t7-driver 宛ての SendMessage で返してほしい。画面に書くだけでは、こちらに届かない。
-該当なしの区分は『0件』と書いてほしい。")
+結果は hc send t7 で返してほしい。画面に書くだけでは、こちらに届かない。
+該当なしの区分は『0件』と書いてほしい。"
 ```
 
 2回目以降は、前回の指摘に対して何をしたかを添える。reviewer が同じ指摘を出し直さずに済む。
 
 前回の結果の先頭にあるスナップショットと、指摘に付いていた観点も渡す。reviewer は前回から変わった部分だけを、その観点と code で見るので、往復ごとに差分全体を見直さずに済む。
 
-```
-SendMessage(to: "t7-reviewer", message: "前回の指摘を反映したので、もう一度レビューしてほしい。
+```bash
+hc send t8 "前回の指摘を反映したので、もう一度レビューしてほしい。
 前回のスナップショット: 34a0e4ee928de39ce3b5a7269faaf78e12db3616
 前回指摘が出た観点: errors
 直した: [C1] foo.rb:42 の nil 分岐、[I2] bar.rb:10 の例外の握りつぶし
 直さない: [I3] baz.rb:5 のメソッド分割。呼び出し元が1箇所で、分けると読む場所が増えるため
 直さないと決めたものは、新しい根拠がなければ再度挙げなくてよい。
-結果は前回と同じく t7-driver 宛ての SendMessage で返してほしい。")
+結果は前回と同じく hc send t7 で返してほしい。"
 ```
 
 ### 指摘を管理する
 
-採否を `TodoWrite` に積む。ラウンドをまたぐと、どれを直しどれを落としたかが会話の中にしか残らず、コンパクトが挟まると消える。
+採否をセッションの todo（Claude Code は TodoWrite、Codex は update_plan）に積む。ラウンドをまたぐと、どれを直しどれを落としたかが会話の中にしか残らず、コンパクトが挟まると消える。
 
 dev-flow.md があれば、「直さないと決めた指摘」の節にも理由付きで書く。コンパクトや `/clear` の後も同じ判断を続けるため。
 
@@ -148,8 +149,7 @@ dev-flow.md があれば、「直さないと決めた指摘」の節にも理�
 - **reviewer に書き込ませない。** 同じ作業ツリーで動いているので、両方が書くとファイルを取り合う。書き込むのはこのペインだけ。
 - reviewer に差分を貼って渡さない。同じ作業ツリーなので、`git add -N` 済みなら `git diff` で同じものが見える。
 - 指摘を全部飲まない。レビューは提案で、採否を決めるのはこのペイン。全部直すと要件から離れる。
-- 返事は自動で届く。`ListAgents` を繰り返して待たない。
-- reviewer は通知を切って起動しているので、権限の確認で止まっても知らせが来ない。返事がなかなか届かないときは、reviewer のペインで許可待ちになっていないか見てもらうようユーザーに伝える。
-- `hc send` は使わない。terminal への打ち込みになり、返事を画面から読み取ることになる。
+- 返事は `<hc from="t8 …">` の形で次の入力として届く。待つときは `hc wait --children any` にし、`hc read` や `hc ls` を繰り返して待たない。
+- reviewer が権限の確認や質問で止まると、`hc get <番地>` の状態が `blocked` になる。返事がなかなか届かないときはこれを見て、`blocked` ならユーザーに reviewer のペインを見てもらう。`hc send --force` で確認を飛ばさない。
 - 自分の権限で拒否された操作を reviewer に代行させない。ユーザーの許可判断を迂回することになる。
 - 手で閉じてよいのは自分が作ったペインだけ。仕事が終わったら reviewer を残すか閉じるかをユーザーに確認する。
