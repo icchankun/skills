@@ -1,6 +1,6 @@
 ---
 name: herdr-coding
-description: Herdr.appで隣のペインにreviewerを立て、自分が実装した差分を /reviewing-git-diffs でレビューさせ、直すべき指摘（Critical・Important と、直すのが妥当な Suggestions）がなくなるまで修正とレビューを自動で往復する。「実装とレビューを回して」「レビュー役を立てて」「reviewerに見せて」「レビューが通るまで直して」「実装とレビューを分けたい」と言われた場合に使う。Herdr.app の terminal（HC_TERMINAL_ID がある）の中で使う。
+description: Claude Code 専用。Herdr.appで隣のペインにreviewerを立て、自分が実装した差分を /reviewing-git-diffs でレビューさせ、直すべき指摘（Critical・Important と、直すのが妥当な Suggestions）がなくなるまで修正とレビューを自動で往復する。「実装とレビューを回して」「レビュー役を立てて」「reviewerに見せて」「レビューが通るまで直して」「実装とレビューを分けたい」と言われた場合に使う。Herdr.app の terminal（HC_TERMINAL_ID がある）の中で使う。
 ---
 
 # herdr-coding

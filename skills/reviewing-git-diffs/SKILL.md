@@ -1,6 +1,6 @@
 ---
 name: reviewing-git-diffs
-description: 差分を /pr-review-toolkit:review-pr（バグ・エラー処理・テストなどの正しさ）、/ponytail:ponytail-review（消せるコード・要らない依存・先回りした抽象化）、/security-review（セキュリティ）、リポジトリの流儀に沿っているかの4つでレビューし、指摘を Critical / Important / Suggestions の1つの一覧にまとめて返す。ファイルは編集しない。「レビューして」「差分を見て」「コミット前・PRを出す前に見て」「作り込みすぎてないか見て」と言われた場合や、herdr-coding の reviewer としてレビューを頼まれた場合に使う。review-pr や ponytail-review を単独で呼ぶ場面でも、ユーザーが片方だけを指定していなければこちらを使う。PRに付いたレビューコメントへの対応は resolving-pr-reviews、GitHub の PR にレビューを投稿するのは code-review の役割で、このスキルは使わない。
+description: Claude Code 専用。差分を /pr-review-toolkit:review-pr（バグ・エラー処理・テストなどの正しさ）、/ponytail:ponytail-review（消せるコード・要らない依存・先回りした抽象化）、/security-review（セキュリティ）、リポジトリの流儀に沿っているかの4つでレビューし、指摘を Critical / Important / Suggestions の1つの一覧にまとめて返す。ファイルは編集しない。「レビューして」「差分を見て」「コミット前・PRを出す前に見て」「作り込みすぎてないか見て」と言われた場合や、herdr-coding の reviewer としてレビューを頼まれた場合に使う。review-pr や ponytail-review を単独で呼ぶ場面でも、ユーザーが片方だけを指定していなければこちらを使う。PRに付いたレビューコメントへの対応は resolving-pr-reviews、GitHub の PR にレビューを投稿するのは code-review の役割で、このスキルは使わない。
 ---
 
 # reviewing-git-diffs

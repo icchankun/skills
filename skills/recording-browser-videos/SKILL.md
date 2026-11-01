@@ -100,8 +100,8 @@ steps() {
 worktree の中から、同梱の `scripts/record-scenes.sh` で撮る。場面ごとに、ブラウザを開く → `setup` → 札を出す → 録画を始める → 札を約1秒見せて消す → `steps` → 録画を止める → mp4 にする、を流す。動画は札から始まり、末尾の止まった部分は切るので、場面のあいだに間が空かない。
 
 ```bash
-~/.claude/skills/recording-browser-videos/scripts/record-scenes.sh -j 4 <場面の置き場所> "<URL>" <出力.mp4>     # 全部
-~/.claude/skills/recording-browser-videos/scripts/record-scenes.sh -j 4 <場面の置き場所> "<URL>" <出力.mp4> 3   # 3 だけ撮り直す
+<skill のディレクトリ>/scripts/record-scenes.sh -j 4 <場面の置き場所> "<URL>" <出力.mp4>     # 全部
+<skill のディレクトリ>/scripts/record-scenes.sh -j 4 <場面の置き場所> "<URL>" <出力.mp4> 3   # 3 だけ撮り直す
 ```
 
 ```

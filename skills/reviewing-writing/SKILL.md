@@ -15,7 +15,7 @@ description: 会話の外に残る文章（コミットメッセージ・PR desc
 
 ```bash
 npx -y -p textlint@14 -p textlint-rule-preset-ja-technical-writing@12 \
-  textlint --config ~/.claude/skills/reviewing-writing/textlintrc.json <一時ファイル>
+  textlint --config <skill のディレクトリ>/textlintrc.json <一時ファイル>
 ```
 
 - 設定は ja-technical-writing のうち、文末の句点を求めるルールと `？` を禁じるルールだけを切っている。コミットメッセージの書式とぶつかるため。
@@ -24,7 +24,7 @@ npx -y -p textlint@14 -p textlint-rule-preset-ja-technical-writing@12 \
 
 ## 2. 観点ごとに見直す
 
-次の3つを、それぞれ別のサブエージェント（Agent ツール、`model: sonnet`）に並列で頼む。下書きと文章の種類を渡し、「直す箇所と直した文」を返してもらう。直す箇所がなければ「なし」と返してもらう。
+次の3つを、それぞれ別のサブエージェントに並列で頼む。下書きと文章の種類を渡し、「直す箇所と直した文」を返してもらう。直す箇所がなければ「なし」と返してもらう。観点が決まっていて、1つずつ当てるだけなので、親より軽いモデル（Claude Code は `sonnet`、Codex は `gpt-6-luna`）でよい。サブエージェントを使えないときは、3つの観点を順に自分で当てる。
 
 書いた本人が見直すと、自分の言い回しを正しいと思い込みやすい。観点ごとに別の目で見るのはそのため。
 
@@ -49,7 +49,7 @@ npx -y -p textlint@14 -p textlint-rule-preset-ja-technical-writing@12 \
 
 分岐・状態の移り変わり・構成・変更前と変更後など、図で表せる箇所を探し、ASCII アートの図にした案を返す。一列に進むだけの手順は図にせず、番号付きの箇条書きにする。迷ったら図にする。すでにある図も、決まりに沿っていなければ直した案を返す。
 
-- 図の決まりと型は `~/.claude/skills/committing-git-changes/references/diagrams.md` に従う。
+- 図の決まりと型は `<skill のディレクトリ>/../committing-git-changes/references/diagrams.md` に従う。
 - 図はコードブロックで囲む。
 - 図で伝わるなら、図の説明を文章で繰り返さない。
 - 図で表せる箇所がないときだけ「なし」と返す。

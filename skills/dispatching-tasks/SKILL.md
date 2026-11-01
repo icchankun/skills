@@ -1,6 +1,6 @@
 ---
 name: dispatching-tasks
-description: チケットや実装方針を受け取ったセッション（指令役）が、作業用のブランチと worktree を作り、その worktree で起動した driver に作業を引き継いで手を離す。GitHub Issue や Notion チケットのリンク、PR を前提とした実装方針を渡されたとき、「この作業を始めて」「worktree に渡して」と言われた場合に使う。実装そのものは引き継いだ先の running-dev-flow が進める。
+description: Claude Code 専用。チケットや実装方針を受け取ったセッション（指令役）が、作業用のブランチと worktree を作り、その worktree で起動した driver に作業を引き継いで手を離す。GitHub Issue や Notion チケットのリンク、PR を前提とした実装方針を渡されたとき、「この作業を始めて」「worktree に渡して」と言われた場合に使う。実装そのものは引き継いだ先の running-dev-flow が進める。
 ---
 
 # dispatching-tasks

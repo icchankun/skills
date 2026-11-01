@@ -8,8 +8,8 @@ description: PRの未解決レビュースレッドを取得し、修正・コ�
 依存: `gh` CLI（認証済み）、`ruby`
 
 ```
-/resolving-pr-reviews 123         # 指摘がなくなるまで繰り返す
-/resolving-pr-reviews 123 --once  # 1ラウンドで終える
+resolving-pr-reviews 123         # 指摘がなくなるまで繰り返す
+resolving-pr-reviews 123 --once  # 1ラウンドで終える
 ```
 
 ## 全体の流れ
@@ -69,7 +69,7 @@ Copilot が依頼中に残っていれば、出てきた `createdAt` を起点�
 ## ステップ1: 未解決スレッドの取得
 
 ```bash
-ruby ~/.claude/skills/resolving-pr-reviews/scripts/fetch_pr_comments.rb "$REPO" <PR番号>
+ruby <skill のディレクトリ>/scripts/fetch_pr_comments.rb "$REPO" <PR番号>
 ```
 
 **最後のコメントが自分のスレッドは除外する。** 前のラウンドで返信済みで、人のレビュアーの resolve 待ちになっているもの。レビュアーが再度返信していれば最後のコメントは相手のものになるので、自然に対象に戻る。
@@ -88,7 +88,7 @@ ruby ~/.claude/skills/resolving-pr-reviews/scripts/fetch_pr_comments.rb "$REPO" 
 
 「ユーザーに聞く」はここでは止めず、ステップ4の提示でまとめて聞く。答えが出たものはステップ3に戻って直す。
 
-影響範囲が広い指摘は Agent ツール（subagent_type: Explore、model: haiku）で、呼び出し元や同じ書き方の箇所を探させてから仕分ける。探すだけで、直すかの判断は自分でするため。
+影響範囲が広い指摘は、読むだけのサブエージェントに呼び出し元や同じ書き方の箇所を探させてから仕分ける。探すだけで、直すかの判断は自分でするので、いちばん軽いモデル（Claude Code は `haiku`、Codex は `gpt-6-luna`）でよい。サブエージェントを使えないときは自分で探す。
 
 前のラウンドで「直さない」と決めた指摘と同じ内容が出てきたら、同じ理由で「直さない」に入れる。判断を変えない。
 
@@ -96,7 +96,7 @@ ruby ~/.claude/skills/resolving-pr-reviews/scripts/fetch_pr_comments.rb "$REPO" 
 
 「直す」のスレッドをまとめて実装し、変更したファイルに関係するテストや lint を実行する。
 
-**ready の PR:** `/committing-git-changes` で新しいコミットを作成する。直したスレッドごとに最初のコメントの URL（ステップ1で取った `url`）を渡し、「なぜ必要なのか？」の先頭に置いてもらう。1件なら `[レビューコメント](<URL>) の対応です`、2件以上なら「以下のレビューコメントの対応です」の下に URL を箇条書きで並べる。`/committing-git-changes` のユーザー確認はステップ4に回し、ここでは取らない。
+**ready の PR:** `committing-git-changes` で新しいコミットを作成する。直したスレッドごとに最初のコメントの URL（ステップ1で取った `url`）を渡し、「なぜ必要なのか？」の先頭に置いてもらう。1件なら `[レビューコメント](<URL>) の対応です`、2件以上なら「以下のレビューコメントの対応です」の下に URL を箇条書きで並べる。`committing-git-changes` のユーザー確認はステップ4に回し、ここでは取らない。
 
 **draft の PR:** 直した箇所を入れたコミットを `git log` と `git blame` で探し、そのコミットに fixup して並べ直す。
 
@@ -105,7 +105,7 @@ git commit --fixup=<直したい箇所を入れたコミット>
 GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <ベースブランチ>
 ```
 
-コミットメッセージは変えないので、`/committing-git-changes` は通さない。直しが元のコミットの説明と合わなくなるときだけ、そのコミットのメッセージも直す。
+コミットメッセージは変えないので、`committing-git-changes` は通さない。直しが元のコミットの説明と合わなくなるときだけ、そのコミットのメッセージも直す。
 
 ## ステップ4: push の承認
 
@@ -129,7 +129,7 @@ ready の PR のときだけ行う。draft の PR ではステップ5に進む�
 ### コミット
 abc1234 fix: ...（メッセージ全文）
 
-### 整理したコメント（/committing-git-changes のステップ3）
+### 整理したコメント（committing-git-changes のステップ3）
 app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 ```
 
@@ -182,7 +182,7 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 ```bash
 since=<push前の時刻>
 for _ in $(seq 20); do
-  out=$(ruby ~/.claude/skills/resolving-pr-reviews/scripts/fetch_pr_comments.rb "$REPO" <PR番号>) || exit 1
+  out=$(ruby <skill のディレクトリ>/scripts/fetch_pr_comments.rb "$REPO" <PR番号>) || exit 1
   jq -e --arg since "$since" 'any(.reviews[]; (.author | startswith("copilot-pull-request-reviewer")) and .submitted_at > $since)' <<<"$out" >/dev/null && { printf '%s\n' "$out"; exit 0; }
   sleep 30
 done
@@ -239,7 +239,7 @@ gh pr ready <PR番号>
 ```bash
 since=<報告した時刻>
 while :; do
-  out=$(ruby ~/.claude/skills/resolving-pr-reviews/scripts/fetch_pr_comments.rb "$REPO" <PR番号>) || exit 1
+  out=$(ruby <skill のディレクトリ>/scripts/fetch_pr_comments.rb "$REPO" <PR番号>) || exit 1
   jq -e --arg since "$since" '.unresolved_thread_count > 0 or any(.reviews[]; .author_type == "User" and .submitted_at > $since)' <<<"$out" >/dev/null && { printf '%s\n' "$out"; exit 0; }
   state=$(gh pr view <PR番号> -R "$REPO" --json state -q .state) || exit 1
   [ "$state" = OPEN ] || exit 3
@@ -253,7 +253,7 @@ done
 - exit 3: PR が閉じたかマージされた。その旨を伝えて終える
 - それ以外: `gh` が失敗した。エラー内容を伝えて終える
 
-見張りはこのセッションが開いているあいだだけ動く。セッションを閉じたら、開き直したときに `/resolving-pr-reviews <PR番号>` で拾い直す。
+見張りはこのセッションが開いているあいだだけ動く。セッションを閉じたら、開き直したときに `resolving-pr-reviews <PR番号>` で拾い直す。
 
 ## 注意事項
 

@@ -15,7 +15,7 @@ recording-manual-checks -> recording-browser-videos: 撮り方と部品を使う
 capturing-screens -> recording-browser-videos: ブラウザの決まりに従う
 ```
 
-撮るのは、Agent ツールのサブエージェント（`model: sonnet`）に任せる。項目・アプリの URL・置き場所を渡し、この skill と `recording-browser-videos` に従わせる。Opus と撮り比べて出来はほぼ変わらず、時間は3分の1で済んだため。
+撮るのは、サブエージェントに任せる。項目・アプリの URL・置き場所を渡し、この skill と `recording-browser-videos` に従わせる。決まった手順をなぞるだけなので、親より軽いモデル（Claude Code は `sonnet`、Codex は `gpt-6-luna`）でよい。重いモデルと撮り比べて出来はほぼ変わらず、時間は3分の1で済んだ。サブエージェントを使えないときは自分で撮る。
 
 ## 1. 項目を読む
 
@@ -54,8 +54,8 @@ steps() {
 作業ブランチの worktree でアプリを起動し、worktree の中から撮る。
 
 ```bash
-~/.claude/skills/recording-browser-videos/scripts/record-scenes.sh -j 4 "$media/checks" "<URL>" "$media/checks.mp4"
-~/.claude/skills/recording-browser-videos/scripts/record-scenes.sh -j 4 "$media/checks" "<URL>" "$media/checks.mp4" 3   # 3 だけ撮り直す
+<skill のディレクトリ>/../recording-browser-videos/scripts/record-scenes.sh -j 4 "$media/checks" "<URL>" "$media/checks.mp4"
+<skill のディレクトリ>/../recording-browser-videos/scripts/record-scenes.sh -j 4 "$media/checks" "<URL>" "$media/checks.mp4" 3   # 3 だけ撮り直す
 ```
 
 

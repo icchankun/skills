@@ -1,6 +1,6 @@
 ---
 name: running-dev-flow
-description: 引き継がれた worktree で、リポジトリの流儀の確認から実装・レビューの往復・コミット・画面の撮影・draft PR・Copilot の指摘への対応までを、決まった順に進めるまとめ役。手順と状態を dev-flow.md に書き、コンパクトや /clear の後も続きから動く。handover で作業を引き継いだとき、dispatching-tasks から渡されたとき、「実装を始めて」「PR まで進めて」と言われた場合に使う。各手順のやり方は呼び出す skill に任せ、ここでは順番と次へ進む条件だけを決める。
+description: Claude Code 専用。引き継がれた worktree で、リポジトリの流儀の確認から実装・レビューの往復・コミット・画面の撮影・draft PR・Copilot の指摘への対応までを、決まった順に進めるまとめ役。手順と状態を dev-flow.md に書き、コンパクトや /clear の後も続きから動く。handover で作業を引き継いだとき、dispatching-tasks から渡されたとき、「実装を始めて」「PR まで進めて」と言われた場合に使う。各手順のやり方は呼び出す skill に任せ、ここでは順番と次へ進む条件だけを決める。
 ---
 
 # running-dev-flow

@@ -3,7 +3,7 @@ name: committing-git-changes
 description: gitコミットを作成する。差分の分析・ステージング・Conventional Commitsに従ったメッセージ生成を一括で行う。ユーザーが「コミットしたい」「変更をコミット」「コミットメッセージを作って」と言った場合や、実装が完了してコミットの準備ができている場合に使う。ユーザーがこのスキルを明示的に指定していなくても、`git commit` を実行しようとする場面では必ずこのスキルを使うこと。
 ---
 
-# /committing-git-changes スキル
+# committing-git-changes
 
 gitの差分や会話の文脈をもとに、[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) に従ったコミットメッセージを生成し、コミットを作成する
 
@@ -47,7 +47,7 @@ dev-flow.md（`$(git rev-parse --absolute-git-dir)/dev-flow.md`）に「なぜ�
 生成したら、中見出しの絵文字が gitmoji の公式一覧にあるかをスクリプトで確かめる:
 
 ```bash
-python3 ~/.claude/skills/committing-git-changes/scripts/check_gitmoji.py < <メッセージのファイル>
+python3 <skill のディレクトリ>/scripts/check_gitmoji.py < <メッセージのファイル>
 ```
 
 - 終了コード 1 は一覧にない絵文字がある。出力された見出しの絵文字を、一覧から選び直す
@@ -56,7 +56,7 @@ python3 ~/.claude/skills/committing-git-changes/scripts/check_gitmoji.py < <メ�
 そのあと次の2つを並列で行い、両方の結果を反映する:
 
 - `reviewing-writing` スキルで文章を見直す
-- サブエージェント（Agent ツール、`model: haiku`）に、差分とメッセージを渡し、中見出しの絵文字が変更の種類に合っているかを確かめさせる。一覧にある絵文字でも、新機能に 🐛 を付けるような取り違えはスクリプトでは見つからないため
+- サブエージェントに、差分とメッセージを渡し、中見出しの絵文字が変更の種類に合っているかを確かめさせる。一覧にある絵文字でも、新機能に 🐛 を付けるような取り違えはスクリプトでは見つからないため　見比べるだけの軽い作業なので、いちばん軽いモデル（Claude Code は `haiku`、Codex は `gpt-6-luna`）でよい　サブエージェントを使えないときは自分で確かめる
 
 ### ステップ5: ユーザー確認
 

@@ -1,9 +1,9 @@
 ---
 name: creating-pull-requests
-description: GitHub PRをdraftで作成する。コミット内容からタイトル・descriptionを自動生成し、`gh pr create --draft`で作成する。ユーザーが「PR作りたい」「PRを出して」「プルリクエスト作成」「PRお願い」「レビュー出したい」「push してPR作って」と言った場合や、実装完了後にPR作成の流れになった場合に使う。`/committing-git-changes`でコミット後の次のステップとしても使われる。
+description: GitHub PRをdraftで作成する。コミット内容からタイトル・descriptionを自動生成し、`gh pr create --draft`で作成する。ユーザーが「PR作りたい」「PRを出して」「プルリクエスト作成」「PRお願い」「レビュー出したい」「push してPR作って」と言った場合や、実装完了後にPR作成の流れになった場合に使う。`committing-git-changes`でコミット後の次のステップとしても使われる。
 ---
 
-# /creating-pull-requests スキル
+# creating-pull-requests
 
 gitのコミット情報の解析からdraft PR作成まで一気通貫で行う。
 PRタイトルとdescriptionをコミットメッセージから自動生成することで、手作業でのコピペや整形を不要にする。
@@ -15,7 +15,7 @@ PRタイトルとdescriptionをコミットメッセージから自動生成す�
 PRのマージ先（ベースブランチ）を次の順で決める。以降の `<base>` はここで決めたブランチを指す:
 
 1. 引数で指定されたブランチ
-2. `git config branch.<現在のブランチ>.gh-merge-base` の値（`/creating-git-branches` が作成元を記録している）
+2. `git config branch.<現在のブランチ>.gh-merge-base` の値（`creating-git-branches` が作成元を記録している）
 3. リポジトリのデフォルトブランチ
 
 ```bash
@@ -107,7 +107,7 @@ dev-flow.md（`"$(git rev-parse --absolute-git-dir)/dev-flow.md"`）に「動作
 
 #### 文章の見直し
 
-複数コミットをまとめ直した文章は、`reviewing-writing` スキルで見直してから提示する。動作確認の項目は `planning-manual-checks` で、コミットメッセージをそのまま使った部分は `/committing-git-changes` で見直し済みなので、手を入れない。
+複数コミットをまとめ直した文章は、`reviewing-writing` スキルで見直してから提示する。動作確認の項目は `planning-manual-checks` で、コミットメッセージをそのまま使った部分は `committing-git-changes` で見直し済みなので、手を入れない。
 
 ### ステップ5: ユーザーに確認する
 
@@ -156,4 +156,4 @@ dev-flow.md（`"$(git rev-parse --absolute-git-dir)/dev-flow.md"`）に「動作
 
 - ユーザーの承認なしに `git push` や `gh pr create` を実行しない — 共有リポジトリへの操作は確認が必須
 - ベースブランチやデフォルトブランチの上では絶対にpushしない — 保護ブランチへの直接pushは事故のもと
-- コミットの作成・変更はしない — それは `/committing-git-changes` の役割
+- コミットの作成・変更はしない — それは `committing-git-changes` の役割

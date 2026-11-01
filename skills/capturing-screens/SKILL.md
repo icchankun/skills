@@ -9,7 +9,7 @@ description: 画面に変更がある作業で、変更前（ベースブラン�
 
 依存: `playwright-cli`（mise で入れる）
 
-撮るのは、Agent ツールのサブエージェント（`model: sonnet`）に任せる。撮る画面・アプリの URL・置き場所を渡し、この skill に従わせる。決まった手順をなぞるだけで判断が軽く、Opus で動かしても出来は変わらないため。
+撮るのは、サブエージェントに任せる。撮る画面・アプリの URL・置き場所を渡し、この skill に従わせる。決まった手順をなぞるだけで判断が軽く、重いモデルで動かしても出来は変わらないので、親より軽いモデル（Claude Code は `sonnet`、Codex は `gpt-6-luna`）でよい。サブエージェントを使えないときは自分で撮る。
 
 `playwright-cli` の書き方は `playwright-cli` skill に従う（読むのは SKILL.md と `references/storage-state.md` だけ）。食い違うときは `playwright-cli <コマンド> --help` を正とする。
 
