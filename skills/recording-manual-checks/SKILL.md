@@ -19,7 +19,7 @@ capturing-screens -> recording-browser-videos: ブラウザの決まりに従う
 
 ## 1. 項目を読む
 
-dev-flow.md の「動作確認」の項目を読む。項目がなければ、先に `planning-manual-checks` で決める。「UI上の変更なし」なら撮らない。
+dev-flow.md の「動作確認」の項目を読む。項目がなければ、先に `planning-manual-checks` で決める。項目の上にある「撮るもの」が「スクショだけ」か「なし」なら撮らない。
 
 ## 2. 項目を場面に書き起こす
 
