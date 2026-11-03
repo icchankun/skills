@@ -7,12 +7,12 @@ description: 動作確認の項目（planning-manual-checks が dev-flow.md に�
 
 動作確認の項目を、書いてある通りに上から順に操作して、変更後だけを1本に撮る。レビュアーが項目と動画を照らし合わせて確かめられるため。動画の目的は、正しく動いているかを確かめることにある。
 
-撮り方・部品・ブラウザの扱いは `recording-browser-videos` に従う。
+撮り方と部品は `recording-browser-videos` に、ブラウザの扱い・置き場所・撮るものの規律は `<skill のディレクトリ>/../recording-browser-videos/references/browser.md` に従う。
 
 ```
 planning-manual-checks -> recording-manual-checks: 動作確認の項目を渡す
 recording-manual-checks -> recording-browser-videos: 撮り方と部品を使う
-capturing-screens -> recording-browser-videos: ブラウザの決まりに従う
+capturing-screens -> recording-browser-videos: references/browser.md に従う
 ```
 
 撮るのは、サブエージェントに任せる。項目・アプリの URL・置き場所を渡し、この skill と `recording-browser-videos` に従わせる。決まった手順をなぞるだけなので、親より軽いモデル（Claude Code は `sonnet`、Codex は `gpt-6-luna`）でよい。重いモデルと撮り比べて出来はほぼ変わらず、時間は3分の1で済んだ。サブエージェントを使えないときは自分で撮る。
@@ -23,27 +23,14 @@ dev-flow.md の「動作確認」の項目を読む。項目がなければ、�
 
 ## 2. 項目を場面に書き起こす
 
-1項目を1場面にして、`$media/checks/<番号>.sh` に書く。`$media` は `"$(git rev-parse --absolute-git-dir)/dev-flow-media"`。番号は項目の順にする。
+1項目を1場面にして、`$media/checks/<番号>.sh` に書く。`$media` は browser.md の「置き場所」のもの。番号は項目の順にする。
 
 - `TITLE`: 項目の文。30字くらいに縮めてよい
 - `SUBTITLE`: `期待: <期待する結果>`
 - `steps`: 項目に書いてある通りに操作し、最後に `expect_text` で期待する結果が出たかを確かめる。出れば結果にスポットライトが当たってレビュアーの目が向き、出なければ止まるので、不具合のまま撮った動画ができない。文で確かめられない結果は `spot` で照らす
 - `setup`: 前の項目の結果に頼る項目は、前提の操作を録画せずに書く。どの項目も単独で撮り直せるようにするため
 
-```bash
-# $media/checks/3.sh
-TITLE="チェックを付けると、件数が「1 件」になる"
-SUBTITLE="期待: 取り消し線が付き、ヘッダーが「1 件」"
-setup() {
-  fill_text "やること" "牛乳を買う"
-  P click 'role=button[name="追加"s]'
-}
-steps() {
-  zoom 'main'
-  click_on 'role=checkbox[name="牛乳を買う を完了にする"s]'
-  expect_text "1 件"
-}
-```
+スクリプトの形と使える部品は、recording-browser-videos の「1. 場面ごとのスクリプトを書く」に従う。
 
 スクリプトは、アプリを起動する前に書ける。押す場所の名前（ボタンの文言や `aria-label`）は、差分と動作確認の項目から決まるため。running-dev-flow では reviewer の返事を待つあいだに書き、撮る前に `snapshot` で名前だけ確かめる。
 
@@ -74,4 +61,4 @@ dev-flow.md の「画面」の節の表の下に、動画のファイル名を�
 動画: checks.mp4
 ```
 
-撮るものの決まり（本番を撮らない・個人情報を写さない）は `recording-browser-videos` の「規律」に従う。
+撮るものの決まり（本番を撮らない・個人情報を写さない）は browser.md の「規律」に従う。

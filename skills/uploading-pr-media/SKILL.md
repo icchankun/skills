@@ -21,7 +21,7 @@ dev-flow.md の「画面」の表と動画（mp4）を、`$(git rev-parse --abso
 
 撮るはずのものがないときは、画像なら capturing-screens に、動画なら recording-manual-checks に戻る。撮るものに入っていないほうは、ファイルがなくても戻らない。
 
-添付の URL は PR を見られる人なら誰でも開けるので、上げる前に、画像と動画に個人情報や秘密の値が写っていないかを見る。
+上げる前に、`<skill のディレクトリ>/../recording-browser-videos/references/browser.md` の「規律」に沿って、画像と動画に個人情報や秘密の値が写っていないかを見る。添付の URL は PR を見られる人なら誰でも開けるため。
 
 ## 2. 本文を書いて上げる
 

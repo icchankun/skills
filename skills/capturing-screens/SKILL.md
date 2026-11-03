@@ -1,6 +1,6 @@
 ---
 name: capturing-screens
-description: 画面に変更がある作業で、変更前（ベースブランチ）と変更後（作業ブランチ）の同じ画面を、同じ画面サイズ・同じデータでスクショに撮る。撮ったファイルの一覧を dev-flow.md に書き、uploading-pr-media が PR に貼る。ブラウザの扱いは recording-browser-videos の決まりに従う。running-dev-flow から画面を変えたときに呼ばれるほか、「スクショを撮って」「変更前後を撮って」と言われた場合に使う。playwright-cli が必要。
+description: 画面に変更がある作業で、変更前（ベースブランチ）と変更後（作業ブランチ）の同じ画面を、同じ画面サイズ・同じデータでスクショに撮る。撮ったファイルの一覧を dev-flow.md に書き、uploading-pr-media が PR に貼る。ブラウザの扱いと撮るものの規律は recording-browser-videos の references/browser.md に従う。running-dev-flow から画面を変えたときに呼ばれるほか、「スクショを撮って」「変更前後を撮って」と言われた場合に使う。playwright-cli が必要。
 ---
 
 # capturing-screens
@@ -21,32 +21,17 @@ dev-flow.md の「動作確認」にある「撮るもの」（planning-manual-c
 
 新しく作った画面は、変更前を撮らない。
 
-running-dev-flow から実装の前に変更前だけを撮るときは、差分がまだないので要件から画面を決める。実装してみて増えた画面は、あとで変更前を撮り足す。
+running-dev-flow から実装の前に変更前だけを撮るときは、まだ「撮るもの」の行がない（手順3の planning-manual-checks が書く）。要件から画面が変わると分かる場合だけ変更前を撮り、差分がまだないので画面も要件から決める。実装してみて増えた画面は、あとで変更前を撮り足す。あとで「撮るもの」が「動画だけ」か「なし」になったら、撮った画像は使わない。
 
 ## 2. 置き場所を作る
 
-ファイルは worktree の git dir に置く。commit されず、`git wt -D` で一緒に消える。
-
-```bash
-media="$(git rev-parse --absolute-git-dir)/dev-flow-media"
-mkdir -p "$media"
-cd "$media"
-session="capture-$(basename "$(git rev-parse --show-toplevel)")"
-```
-
-以降の `playwright-cli` はここで動かす。worktree で動かすと、snapshot が作る `.playwright-cli/` が未追跡のファイルとして残るため。
+`<skill のディレクトリ>/../recording-browser-videos/references/browser.md` の「置き場所」のとおりに、`$media` と `$session` を決めてそこへ移る。以降の `playwright-cli` はここで動かす。
 
 ## ブラウザの扱い
 
-ブラウザの扱いは `recording-browser-videos` の「ブラウザの扱い」に従う。セッション名は 2 の `$session`、ログインの状態は worktree の git dir の `browser-auth.json` を使う。
+ブラウザの扱いとログインの状態は `<skill のディレクトリ>/../recording-browser-videos/references/browser.md` に従う。セッション名は 2 の `$session` を使う。
 
-3 と 4 の `playwright-cli` は1つのスクリプト（`$media/capture.sh`）に書き、`hc run --bg --name capture bash "$media/capture.sh"` で動かして `hc wait capture` で待つ。別のシェルで動いて 2 の値は引き継がれないので、先頭で `media` と `session` を 2 と同じように決め、`trap` でどう終わっても閉じる。
-
-```bash
-set -e
-trap 'playwright-cli -s="$session" close >/dev/null 2>&1' EXIT
-playwright-cli -s="$session" open "<URL>" --idle-timeout=600000
-```
+3 と 4 の `playwright-cli` は1つのスクリプト（`$media/capture.sh`）に書き、`hc run --bg --name capture bash "$media/capture.sh"` で動かして `hc wait capture` で待つ。別のシェルで動いて 2 の値は引き継がれないので、先頭で `media` と `session` を 2 と同じように決め、browser.md の「立て方と閉じ方」の形で `trap` を仕掛けてどう終わっても閉じる。
 
 ## 3. 変更前を撮る
 
@@ -92,5 +77,4 @@ dev-flow.md の「画面」の節に、撮ったものを表で書く。dev-flow
 
 ## 規律
 
-- 本番や共有の環境を撮らない。手元で起動したアプリだけを撮る。
-- 撮った画像に、個人情報や秘密の値が写っていないかを見る。写っていたら、ダミーのデータで撮り直す。
+撮るものの規律（本番を撮らない・個人情報を写さない）は browser.md の「規律」に従う。
