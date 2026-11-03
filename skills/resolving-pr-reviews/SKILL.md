@@ -5,7 +5,7 @@ description: PRの未解決レビュースレッドを取得し、修正・コ�
 
 # PRレビュースレッド対応
 
-依存: `gh` CLI（認証済み）、`ruby`
+依存: `gh` CLI（認証済み）、`ruby`、`jq`
 
 ```
 resolving-pr-reviews 123         # 指摘がなくなるまで繰り返す
@@ -19,7 +19,7 @@ resolving-pr-reviews 123 --once  # 1ラウンドで終える
    `-> 0件なら 7. 結果を報告する
 2. 仕分ける（直す / 直さない / ユーザーに聞く）
 3. 実装してコミットする
-4. push の承認を取る（ready の PR のときだけ）
+4. push の承認を取る（ready の PR のときだけ。draft は聞くことがあるときだけ止まる）
 5. push して Copilot に再レビューを頼み、返信して resolve する
 6. Copilot の再レビューが届くまで待つ
    `-> 1. に戻る
@@ -28,7 +28,7 @@ resolving-pr-reviews 123 --once  # 1ラウンドで終える
    `-> 届いたら 1. に戻る
 ```
 
-ユーザーに止めて確認を取るのは、ready の PR でのステップ4の push 前と、ステップ2で判断が要る指摘があったときだけ。
+ユーザーに止めて確認を取るのは、ready の PR でのステップ4の push 前と、ステップ2で判断が要る指摘があったときだけ。判断が要る指摘は、draft の PR でもステップ4で出して止まる。
 
 draft か ready かで、直し方と返信が変わる:
 
@@ -40,6 +40,19 @@ draft か ready かで、直し方と返信が変わる:
 draft の間は、レビュー前の履歴を整えておく方が、後で読む人に分かりやすい。ready になった後はレビュアーが差分を追っているので、履歴を書き換えずに積む。
 
 再レビューの依頼は、`--once` のときも含めて push のたびに出す。待つのは、`--once` でなく、依頼が通ったときだけ。依頼が通らなければ、ステップ5で終えてステップ7に進む。人のレビュアーはいつ返すか分からないので、待たない。
+
+## dev-flow.md があるとき
+
+`running-dev-flow` から呼ばれると、worktree の git dir に dev-flow.md がある。この skill は、その手順8にあたる。
+
+```bash
+"$(git rev-parse --absolute-git-dir)/dev-flow.md"
+```
+
+dev-flow.md の Stop hook は、状態が `作業中` で未チェックの手順が残っていると、ターンを終わらせない。そのため、ファイルがあれば次のようにする:
+
+- ユーザーに聞くとき（ステップ4）は、状態が `作業中` なら `ユーザー待ち` に書き換えてから止まる。返事が来ると hook が `作業中` に戻す
+- ステップ7で報告したら、手順8にチェックを付けて状態を `完了` にしてから、ステップ8の見張りを始める
 
 ## 準備
 
@@ -86,7 +99,7 @@ ruby <skill のディレクトリ>/scripts/fetch_pr_comments.rb "$REPO" <PR番�
 | 直さない | 誤読・既存の設計判断と衝突・PR の範囲外。理由を1文で書けるもの |
 | ユーザーに聞く | 意図が読み取れない、仕様の判断が要る、直し方が複数あって優劣がつかない |
 
-「ユーザーに聞く」はここでは止めず、ステップ4の提示でまとめて聞く。答えが出たものはステップ3に戻って直す。
+「ユーザーに聞く」はここでは止めず、ステップ4の提示でまとめて聞く。draft の PR でも同じ。答えが出たものはステップ3に戻って直す。
 
 影響範囲が広い指摘は、読むだけのサブエージェントに呼び出し元や同じ書き方の箇所を探させてから仕分ける。探すだけで、直すかの判断は自分でするので、いちばん軽いモデル（Claude Code は `haiku`、Codex は `gpt-6-luna`）でよい。サブエージェントを使えないときは自分で探す。
 
@@ -105,13 +118,15 @@ git commit --fixup=<直したい箇所を入れたコミット>
 GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <ベースブランチ>
 ```
 
+`<ベースブランチ>` は、`creating-pull-requests` のステップ1の決め方で決める。
+
 コミットメッセージは変えないので、`committing-git-changes` は通さない。直しが元のコミットの説明と合わなくなるときだけ、そのコミットのメッセージも直す。
 
 ## ステップ4: push の承認
 
-ready の PR のときだけ行う。draft の PR ではステップ5に進む。
+ready の PR では、以下をまとめて提示し、承認を得る。**ready の PR は自動で push しない。**
 
-以下をまとめて提示し、承認を得る。**ready の PR は自動で push しない。**
+draft の PR では承認を取らない。「ユーザーに聞く」がなければステップ5に進む。あれば、下の形のうち「判断してほしい」までを提示して止まり、答えを待つ。
 
 ```
 ## ラウンド 2
@@ -169,7 +184,7 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
 
    返信文は `reviewing-writing` スキルで見直してから投稿する。
 
-4. resolve する（スレッドの最初のコメントの `author_type` で判定）:
+5. resolve する（スレッドの最初のコメントの `author_type` で判定）:
    - `Bot` → 返信後に resolve する（GraphQL mutation `resolveReviewThread` を `thread_id` で実行）。「直さない」も resolve する。残すと次のラウンドで同じスレッドを拾い直すため
    - `User` → 返信のみ。resolve はレビュアーが行う
 
@@ -234,26 +249,7 @@ gh pr ready <PR番号>
 
 ## ステップ8: 新しい指摘を待つ
 
-報告したら、`fetch_pr_comments.rb` を1分ごとに回すループを一時ファイルのスクリプトに書き、`hc run --bg --name review-wait bash <スクリプト>` で起動してからターンを終える。終わると、その知らせが次の入力として届くので、`hc read review-wait` で出力を読み、`hc rm review-wait` で消す。`--once` のときは起動しない。`since` は報告した時刻（`date -u +%Y-%m-%dT%H:%M:%SZ`）。
-
-```bash
-since=<報告した時刻>
-while :; do
-  out=$(ruby <skill のディレクトリ>/scripts/fetch_pr_comments.rb "$REPO" <PR番号>) || exit 1
-  jq -e --arg since "$since" '.unresolved_thread_count > 0 or any(.reviews[]; .author_type == "User" and .submitted_at > $since)' <<<"$out" >/dev/null && { printf '%s\n' "$out"; exit 0; }
-  state=$(gh pr view <PR番号> -R "$REPO" --json state -q .state) || exit 1
-  [ "$state" = OPEN ] || exit 3
-  sleep 60
-done
-```
-
-待つあいだはトークンを使わない。直したスレッドは resolve し、直さないスレッドは最後が自分の返信になっているので、どちらも数えない。新しい行へのコメントか、人のレビュー（承認を含む）で止まる。PR 全体へのコメント（Conversation 欄）は見ない。
-
-- exit 0: 届いた。ステップ1に戻る。人のレビューの本文は出力の `reviews` から読み、ステップ2で同じように仕分け、`gh pr comment` で返信する。承認だけなら、承認されたことを伝えて、もう一度このステップで起動する
-- exit 3: PR が閉じたかマージされた。その旨を伝えて終える
-- それ以外: `gh` が失敗した。エラー内容を伝えて終える
-
-見張りはこのセッションが開いているあいだだけ動く。セッションを閉じたら、開き直したときに `resolving-pr-reviews <PR番号>` で拾い直す。
+報告したら、PR が開いているあいだ新しい指摘と人のレビューを見張る。`--once` のときは見張らない。見張るときは `<skill のディレクトリ>/references/watching.md` を読み、それに従う。dev-flow.md があれば、起動する前に手順8にチェックを付けて状態を `完了` にする（上の「dev-flow.md があるとき」）。
 
 ## 注意事項
 
