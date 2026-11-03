@@ -91,7 +91,7 @@ ruby <skill のディレクトリ>/scripts/fetch_pr_comments.rb "$REPO" <PR番�
 
 ## ステップ2: 仕分け
 
-各スレッドを次の3つに分け、`TodoWrite` に1スレッド1項目で積む。コンパクトを挟むと、どれを直さないと決めたかが消えるため。
+各スレッドを次の3つに分け、セッションの todo（Claude Code は TaskCreate、Codex は update_plan）に1スレッド1項目で積む。コンパクトを挟むと、どれを直さないと決めたかが消えるため。
 
 | 仕分け | 基準 |
 |---|---|
