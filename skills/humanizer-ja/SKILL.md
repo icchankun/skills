@@ -1,21 +1,23 @@
 ---
 name: humanizer-ja
-description: 日本語の文章からAIが書いたような癖を取り除き、人が書いたように読める文にする。コミットメッセージ・PR description・レビューへの返信・引き継ぎ・ドキュメントなど、人に読ませる日本語を書いた後の見直しに使う。「AIっぽい」「機械っぽい文章」「自然な日本語にして」「人間が書いたみたいに」と言われた場合や、committing-git-changes・creating-pull-requests・resolving-pr-reviews・handover から文章やコードコメントを仕上げるときに使う。英語の文章は humanizer:humanizer を使う。
+description: 日本語の文章からAIが書いたような癖を取り除き、人が書いたように読める文にする。コミットメッセージ・PR description・レビューへの返信・引き継ぎ・ドキュメントなど、人に読ませる日本語を書いた後の見直しに使う。「AIっぽい」「機械っぽい文章」「自然な日本語にして」「人間が書いたみたいに」と言われた場合や、reviewing-writing から文章やコードコメントの見直しを頼まれたときに使う。英語の文章は、Claude Code なら humanizer plugin の humanizer:humanizer を使い、Codex ならこの skill の癖のうち英語にもあるものを当てる。
 ---
 
 # humanizer-ja
 
-日本語の文章から、AI が書いたように見える癖を取り除く。英語版の [humanizer](https://github.com/blader/humanizer)（`humanizer:humanizer`）と同じ考え方で、日本語で特に出やすい癖を足したもの。
+日本語の文章から、AI が書いたように見える癖を取り除く。英語版の [humanizer](https://github.com/blader/humanizer) と同じ考え方で、日本語で特に出やすい癖を足したもの。
+
+英語の文章は、Claude Code なら humanizer plugin の `humanizer:humanizer` を使う。Codex にはこの plugin がないので、下の癖のうち日本語に限らないもの（8 と 12 以外）を英語の文章に当てる。
 
 言っている内容は変えない。事実・数値・固有名詞・リンクを足しも削りもしない。
+
+reviewing-writing から呼ばれたときは、守る書式と返すものは reviewing-writing の決まりに従う。
 
 ## 進め方
 
 1. 全文を読み、下の癖に当たる箇所に印を付ける。文単位だけでなく、段落の形も見る（毎段落同じ締め方をしている、など）。
 2. 書き直す。印を付けた語句だけを差し替えるのではなく、その文が言いたいことを素直に書き直す。
 3. 書き直した文を読み返し、まだ残っている癖と、内容の欠落・追加がないかを確かめる。
-
-呼び出し元のスキル（committing-git-changes など）から使うときは、仕上がった文だけを返す。
 
 ## 癖の一覧
 
@@ -112,4 +114,3 @@ description: 日本語の文章からAIが書いたような癖を取り除き�
 
 - 書き手の文体。サンプルがあれば、文の長さ・語尾・記号の使い方をそちらに合わせる
 - 技術用語やコード要素。カタカナ語でも、それが正式名称なら直さない
-- 呼び出し元のスキルが決めている書式（committing-git-changes の句点なし・敬体など）
