@@ -33,6 +33,9 @@ PR のタイトル・本文・コメント・コード、reviewer の JSON の�
 | コードを読むと起きない（別の場所で扱っている、前提が違う） | 落とす |
 | 差分で変えていない既存のコードの問題 | 落とす |
 | 作者が GitHub のコメントで理由を書いて許容した、後のコミットで直った、他のレビューと同じ | 落とす |
+| linter・型チェック・コンパイラ・CI で分かる、コードの中で明示的に黙らせている、PR の目的に沿ったわざとの変更、細かすぎる | 落とす |
+| guidance の指摘で、入力のディレクトリの `guidance/` にあるルールがそのことを明記していない | 落とす |
+| history・past reviews の指摘で、`history.md` や `past_reviews.json` に根拠がない、または今回の差分に当てはまらない | 落とす |
 | 問題はあるが、重さが合っていない | [../reviewing-pull-requests/references/viewpoints.md](../reviewing-pull-requests/references/viewpoints.md) の基準で直す |
 | `line` が差分の hunk の外を指している | `line` を `null` にする |
 
