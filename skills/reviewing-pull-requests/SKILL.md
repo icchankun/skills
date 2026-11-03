@@ -1,6 +1,6 @@
 ---
 name: reviewing-pull-requests
-description: 他の人が作った GitHub の PR を読み、must / should / ask / nit / fyi の指摘を schemas/findings.json の形の JSON で返す（reviewer）。ファイルは編集せず、GitHub にも投稿しない。投稿と approve は呼び出し元のスクリプト（codex-pr-review）が行い、指摘が正しいかは checking-review-findings が確かめる。codex-pr-review から呼ばれたときや、「この PR をレビューして JSON で返して」と言われた場合に使う。手元の未コミットの差分のレビューは reviewing-git-diffs、自分の PR に付いた指摘への対応は resolving-pr-reviews を使う。
+description: 他の人が作った GitHub の PR を読み、must / should / ask / nit / fyi の指摘を schemas/findings.json の形の JSON で返す（reviewer）。ファイルは編集せず、GitHub にも投稿しない。投稿と approve は呼び出し元のスクリプト（codex-pr-review）が行い、指摘が正しいかは checking-review-findings が確かめる。codex-pr-review から呼ばれたときや、「この PR をレビューして JSON で返して」と言われた場合に使う。自分の作業ブランチの差分（未コミットの差分か、ベースブランチからのコミット）のレビューは reviewing-git-diffs、自分の PR に付いた指摘への対応は resolving-pr-reviews を使う。
 ---
 
 # reviewing-pull-requests

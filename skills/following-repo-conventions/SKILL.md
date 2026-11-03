@@ -41,7 +41,7 @@ description: 実装を始める前に、触るあたりの既存コードを読�
 
 ## 3. メモにする
 
-dev-flow.md があれば（`$(git rev-parse --git-dir)/dev-flow.md`）、「流儀のメモ」の節に書く。なければ結果として返す。
+dev-flow.md があれば（`$(git rev-parse --absolute-git-dir)/dev-flow.md`）、「流儀のメモ」の節に書く。なければ結果として返す。
 
 ```markdown
 ## 流儀のメモ

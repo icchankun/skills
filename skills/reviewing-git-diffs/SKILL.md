@@ -1,6 +1,6 @@
 ---
 name: reviewing-git-diffs
-description: 差分を、正しさ（バグ・エラー処理・テストなど）、消せるコード（要らない依存・先回りした抽象化）、セキュリティ、リポジトリの流儀に沿っているかの4つでレビューし、指摘を Critical / Important / Suggestions の1つの一覧にまとめて返す。ファイルは編集しない。Claude Code では review-pr・ponytail-review・security-review を呼び、Codex では同じ観点を自分で当てる。「レビューして」「差分を見て」「コミット前・PRを出す前に見て」「作り込みすぎてないか見て」と言われた場合や、herdr-coding の reviewer としてレビューを頼まれた場合に使う。review-pr や ponytail-review を単独で呼ぶ場面でも、ユーザーが片方だけを指定していなければこちらを使う。PRに付いたレビューコメントへの対応は resolving-pr-reviews、GitHub の PR にレビューを投稿するのは code-review の役割で、このスキルは使わない。
+description: 差分を、正しさ（バグ・エラー処理・テストなど）、消せるコード（要らない依存・先回りした抽象化）、セキュリティ、リポジトリの流儀に沿っているかの4つでレビューし、指摘を Critical / Important / Suggestions の1つの一覧にまとめて返す。ファイルは編集しない。Claude Code では review-pr・ponytail-review・security-review を呼び、Codex では同じ観点を自分で当てる。「レビューして」「差分を見て」「コミット前・PRを出す前に見て」「作り込みすぎてないか見て」と言われた場合や、herdr-coding の reviewer としてレビューを頼まれた場合に使う。review-pr や ponytail-review を単独で呼ぶ場面でも、ユーザーが片方だけを指定していなければこちらを使う。PRに付いたレビューコメントへの対応は resolving-pr-reviews、他の人が作った GitHub の PR のレビューは reviewing-pull-requests の役割で、このスキルは使わない。Claude Code の code-review plugin で PR にレビューを投稿する場面でも、このスキルは使わない。
 ---
 
 # reviewing-git-diffs
@@ -64,7 +64,7 @@ Claude Code では下のとおり、1〜3 をプラグインのコマンドで�
 3. `/security-review`
    - 対象の範囲を書き添える。認証や権限に触れない差分でも呼ぶ。見逃したときの影響が大きいため。
 4. 流儀に沿っているか（サブエージェント。既存コードと見比べるだけなので、親より軽いモデル（Claude Code は `sonnet`、Codex は `gpt-6-luna`）でよい。サブエージェントを使えないときは自分で見る）
-   - dev-flow.md（`$(git rev-parse --git-dir)/dev-flow.md`）の「流儀のメモ」と、差分の近くの既存コードを渡し、名前空間・ファイル名・名前の付け方・粒度・テーブルの構成が外れている箇所を挙げさせる。
+   - dev-flow.md（`$(git rev-parse --absolute-git-dir)/dev-flow.md`）の「流儀のメモ」と、差分の近くの既存コードを渡し、名前空間・ファイル名・名前の付け方・粒度・テーブルの構成が外れている箇所を挙げさせる。
    - メモがなければ、差分の近くの既存コードだけを基準にさせる。
 
 ### Codex のとき
@@ -77,7 +77,7 @@ Claude Code では下のとおり、1〜3 をプラグインのコマンドで�
 | 2 の ponytail-review | simplify |
 | 3 の security-review | security |
 
-重さは、観点の表の must を Critical、should を Important、ask・nit・fyi を Suggestions に読み替える。
+重さは、観点の表の must を Critical、should を Important、ask・nit・fyi を Suggestions に読み替える。ただし simplify の指摘は、重さに関わらず Suggestions にする。Claude Code の ponytail-review の指摘を必ず Suggestions に入れるのと合わせるため（観点の表の基準のままだと、should で Important になりうる）。
 
 4 は Claude Code と同じ。`multi_agent` が有効でサブエージェントを使えるなら、1〜3 と 4 を分けて並列に動かしてよい。
 
@@ -119,5 +119,5 @@ net: -27 lines possible.
 ## 規律
 
 - ファイルを編集しない。直すのは呼び出し元。
-- 別のペインから `hc send` で頼まれたときは、結果を依頼元に `hc send <依頼元の番地>` で送り返す。依頼元の番地は依頼文か、届いたメッセージの `<hc from="t7 …">` に書いてある。自分の画面に書くだけでは依頼元に届かず、herdr-coding の往復が止まる。結果が長いときは一時ファイルに書き、そのパスを送る。
+- 別のペインから `hc send` で頼まれたときは、結果を依頼元に `hc send <依頼元の番地>` で送り返す。依頼元の番地は依頼文か、届いたメッセージの `<hc from="t7 …">` に書いてある。自分の画面に書くだけでは依頼元に届かず、herdr-coding の往復が止まる。結果が長くても一時ファイルには書かず、結果の本文をそのまま `hc send` で送る。herdr-coding が立てる Claude Code の reviewer は、ファイルへの書き込みを許可されていないため。
 - どれかが失敗したり、コマンドが見つからなかったりしたら、動かなかったものを結果の先頭に書く。残りの結果だけを黙って返さない。
