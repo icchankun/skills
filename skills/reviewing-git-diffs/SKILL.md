@@ -82,7 +82,7 @@ Claude Code では下のとおり、1〜3 をプラグインのコマンドで�
 | 2 の ponytail-review | simplify |
 | 3 の security-review | security |
 
-重さは、観点の表の must を Critical、should を Important、nit を Suggestions に読み替える。
+重さは、観点の表の must を Critical、should を Important、ask・nit・fyi を Suggestions に読み替える。
 
 4 は Claude Code と同じ。`multi_agent` が有効でサブエージェントを使えるなら、1〜3 と 4 を分けて並列に動かしてよい。
 

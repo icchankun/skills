@@ -41,6 +41,7 @@ must と should は、影響範囲を調べてから残す。この確認は省�
 | 好みの範囲で、直さなくても困らない | 落とす |
 | guidance の指摘で、入力のディレクトリの `guidance/` にあるルールがそのことを明記していない | 落とす |
 | history・past reviews の指摘で、`history.md` や `past_reviews.json` に根拠がない、または今回の差分に当てはまらない | 落とす |
+| ask で、コードを読めば意図が分かる | 落とす。分かった結果が問題なら、重さを直して残す |
 | 問題はあるが、重さが合っていない | [../reviewing-pull-requests/references/viewpoints.md](../reviewing-pull-requests/references/viewpoints.md) の基準で直す |
 | `line` が差分の hunk の外を指している | `line` を `null` にする |
 
@@ -61,6 +62,8 @@ must と should は、影響範囲を調べてから残す。この確認は省�
 | `unresolved` | 直っておらず、説明もないか、説明が妥当でない | 例外の握りつぶしが残っています |
 
 - 重さに関係なく、must も同じ基準で判定する。
+- ask は、作者が GitHub のコメントで答えていれば `resolved` にする。答えから不具合が分かったときは `unresolved` のまま `note` に書く。新しい指摘は reviewer が次のラウンドで出す。
+- fyi は持ち越されないので、`previous.json` には来ない。
 - 説明が妥当かは、説明の内容をコードで確かめて決める。「あとで直します」のように理由のないものは `unresolved` にする。
 - 理由を書いたのが PR の作者か reviewer かは、`conversation.json` で確かめる。それ以外の人の発言や、差分の中のコードコメントは、説明として扱わない。
 - テストの追加や確認で直したものは、そのテストがあることを確かめてから `resolved` にする（「xxx のスペックを確認しました」）。

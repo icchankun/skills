@@ -28,7 +28,7 @@
             "type": "string",
             "pattern": "^[0-9]+-[0-9]+$"
           },
-          "severity": { "type": "string", "enum": ["must", "should", "nit"] },
+          "severity": { "type": "string", "enum": ["must", "should", "ask", "nit", "fyi"] },
           "file": { "description": "リポジトリのルートからのパス", "type": "string" },
           "line": {
             "description": "新しい側の行番号。差分の hunk の中の行だけ。hunk の外や消した行についての指摘は null にし、インラインには付けない",
