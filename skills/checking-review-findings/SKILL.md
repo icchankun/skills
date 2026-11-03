@@ -42,6 +42,7 @@ must と should は、影響範囲を調べてから残す。この確認は省�
 | guidance の指摘で、入力のディレクトリの `guidance/` にあるルールがそのことを明記していない | 落とす |
 | history・past reviews の指摘で、`history.md` や `past_reviews.json` に根拠がない、または今回の差分に当てはまらない | 落とす |
 | ask で、コードを読めば意図が分かる | 落とす。分かった結果が問題なら、重さを直して残す |
+| ask で、答えがどちらでも判断が変わらない | 落とす |
 | 問題はあるが、重さが合っていない | [../reviewing-pull-requests/references/viewpoints.md](../reviewing-pull-requests/references/viewpoints.md) の基準と、[ガイドライン](../reviewing-pull-requests/references/guidelines/) の項目に書いた重さで直す |
 | `line` が差分の hunk の外を指している | `line` を `null` にする |
 
