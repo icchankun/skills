@@ -150,10 +150,12 @@ B では URL を知っている人に読まれてしまい、A も商品の販�
 OK が出た文を一時ファイルに書き、`pbcopy` でコピーする。シェルの引数に直接渡すと、記号や改行が崩れるため。
 
 ```bash
-cat > <scratchpad>/slack.txt <<'EOF'
+tmp="$(mktemp)"
+cat > "$tmp" <<'EOF'
 <OK が出た文>
 EOF
-pbcopy < <scratchpad>/slack.txt
+pbcopy < "$tmp"
+rm -f "$tmp"
 ```
 
 コピーしたら、その旨と、メンションがあれば Slack で選び直すことを伝えて終える。
