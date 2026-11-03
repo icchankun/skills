@@ -50,7 +50,7 @@ playwright-cli -s="$session" open "<URL>" --idle-timeout=600000
 
 ## 3. 変更前を撮る
 
-ベースブランチは `git config --get branch.<作業ブランチ>.gh-merge-base`。`git worktree list` でそのブランチの worktree を探し、そこでアプリを起動する。起動のしかたはリポジトリの README や `bin/dev` などに従う。
+ベースブランチは、creating-pull-requests のステップ1（`<skill のディレクトリ>/../creating-pull-requests/SKILL.md`）の決め方で決める。`git worktree list` でそのブランチの worktree を探し、そこでアプリを起動する。起動のしかたはリポジトリの README や `bin/dev` などに従う。
 
 ```bash
 playwright-cli -s="$session" open "<URL>" --idle-timeout=600000

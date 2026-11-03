@@ -1,6 +1,6 @@
 ---
 name: creating-pull-requests
-description: GitHub PRをdraftで作成する。コミット内容からタイトル・descriptionを自動生成し、`gh pr create --draft`で作成する。ユーザーが「PR作りたい」「PRを出して」「プルリクエスト作成」「PRお願い」「レビュー出したい」「push してPR作って」と言った場合や、実装完了後にPR作成の流れになった場合に使う。`committing-git-changes`でコミット後の次のステップとしても使われる。
+description: GitHub PRをdraftで作成する。コミット内容からタイトル・descriptionを自動生成し、`gh pr create --draft`で作成する。ユーザーが「PR作りたい」「PRを出して」「プルリクエスト作成」「PRお願い」「レビュー出したい」「push してPR作って」と言った場合や、実装完了後にPR作成の流れになった場合に使う。running-dev-flow から draft PR を出すときにも呼ばれる。
 ---
 
 # creating-pull-requests
@@ -19,7 +19,7 @@ PRのマージ先（ベースブランチ）を次の順で決める。以降の
 3. リポジトリのデフォルトブランチ
 
 ```bash
-git config "branch.$(git branch --show-current).gh-merge-base"
+git config --get "branch.$(git branch --show-current).gh-merge-base"
 gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
 ```
 
@@ -80,7 +80,9 @@ fix: ログイン時のエラーハンドリングを修正
 
 #### テーブルを足したとき
 
-migration でテーブルを足したり、テーブル同士の関係を変えたりした場合は、変更内容の後に mermaid の ER 図を入れる。GitHub が図として描くので、コミットメッセージの ASCII アートの図より読みやすい。足したテーブルと、それにつながる既存のテーブルだけを描く。
+migration でテーブルを足したり、テーブル同士の関係を変えたりした場合は、mermaid の ER 図を入れる。GitHub が図として描くので、コミットメッセージの ASCII アートの図より読みやすい。足したテーブルと、それにつながる既存のテーブルだけを描く。
+
+コミットメッセージから写した本文にテーブルの ASCII アートの図があれば、その図を ER 図に置き換える。図を残したまま足すと、同じ図が2つ並ぶため。ASCII の図がなければ、変更内容の後に入れる。
 
 ````markdown
 ```mermaid
