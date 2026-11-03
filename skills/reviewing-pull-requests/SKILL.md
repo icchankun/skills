@@ -18,11 +18,14 @@ PR の差分を読み、指摘を返す。返したものは checking-review-fin
 
 今いるディレクトリは、PR の head を checkout した一時的な worktree になっている。
 
+人に頼まれて入力のディレクトリが書かれていないときは、[references/input.md](references/input.md) の手順で作ってから始める。ラウンドは 1 にする。
+
 | ファイル | 中身 |
 |---|---|
 | `pr.json` | 番号・タイトル・本文・作者・ベースブランチ・head の SHA・URL |
-| `diff.patch` | 1回目は PR 全体の差分。2回目以降は、前回レビューした head から今の head までの差分 |
-| `conversation.json` | PR に付いたコメント・レビュー・インラインのスレッド。他のレビュー（Copilot、GitHub Actions の Claude など）も入る。各発言に、書いた人と、その人が PR の作者かどうかが付いている |
+| `diff.patch` | 1回目は PR 全体の差分。2回目以降は、前回レビューした head から今の head までの差分。lockfile と生成物（`*.lock`、`package-lock.json`、`*.min.js`、スナップショットなど）は外してある |
+| `skipped-files` | `diff.patch` から外したファイルの名前。変わったことだけ分かればよく、中身は読まない |
+| `conversation.json` | PR に付いたコメント・レビュー・インラインのスレッド。他のレビュー（Copilot、GitHub Actions の Claude など）も入る。各発言に、書いた人と、その人が PR の作者かどうかが付いている。長い本文は2000字で切ってある |
 | `previous.json` | 前回までの指摘（2回目以降だけ） |
 | `guidance/` | ベースブランチの CLAUDE.md と AGENTS.md。ルートと、変えたディレクトリとその親のもの。元のパスのまま置いてある |
 | `history.md` | 変えたファイルごとの、ベースでそのファイルを触った最近のコミット（SHA・日付・作者・メッセージ） |
@@ -44,7 +47,7 @@ CLAUDE.md と AGENTS.md は、worktree にあるものではなく `guidance/` �
 
 読むのは差分と、次の調査で挙げたところだけにする。リポジトリ全体を見て回らない。トークンが増えるうえ、指摘が差分から離れる。
 
-lockfile、生成されたファイル（`schema.rb` の自動で変わった行、ビルドの成果物、スナップショットなど）は、差分に入っていても中身は見ない。
+lockfile、生成されたファイル（`schema.rb` の自動で変わった行、ビルドの成果物、スナップショットなど）は、差分に入っていても中身は見ない。`skipped-files` にあるファイルは、worktree で開いて中身を読みにいかない。
 
 ### 2. 影響範囲を調べる
 
