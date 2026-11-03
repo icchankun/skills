@@ -74,7 +74,7 @@ Claude Code では下のとおり、1〜3 をプラグインのコマンドで�
 
 ### Codex のとき
 
-1〜3 の代わりに、[reviewing-pull-requests の観点](../reviewing-pull-requests/references/viewpoints.md) を自分で差分に当てる。ファイルは編集しない。
+1〜3 の代わりに、[reviewing-pull-requests の観点](../reviewing-pull-requests/references/viewpoints.md) を自分で差分に当てる。ファイルは編集しない。観点を何で確かめるかは、[ガイドライン](../reviewing-pull-requests/references/guidelines/) のうち、差分に合うものを読む（`common.md` はいつも、`backend.md` はサーバー側のコードを変えたとき）。
 
 | 代わりにするもの | 当てる観点 |
 |---|---|

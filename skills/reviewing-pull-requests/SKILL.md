@@ -70,6 +70,13 @@ graphify path "<変えたシンボル>" "<気になる呼び出し元>"
 
 [references/viewpoints.md](references/viewpoints.md) の観点を、差分に関係するものだけ当てる。重さもそこに従う。
 
+観点を具体的に何で確かめるかは、ガイドラインに書いてある。差分に合うものだけを読む。関係のないガイドラインまで読むと、当てはまらない指摘が混ざるため。
+
+| ガイドライン | 読むとき |
+|---|---|
+| [references/guidelines/common.md](references/guidelines/common.md) | いつも |
+| [references/guidelines/backend.md](references/guidelines/backend.md) | サーバー側のコードを変えた（Ruby のファイル、`Gemfile`、`db/migrate`、`config/` など） |
+
 見つけたものは、指摘にするか迷っても挙げる。絞るのは checking-review-findings の役割で、ここで落としたものは2回目に拾えない。ただし、次の「指摘から外すもの」に当たるものは挙げない。
 
 - guidance は `guidance/` を読んで当てる
