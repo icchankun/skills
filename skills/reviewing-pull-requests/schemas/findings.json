@@ -11,7 +11,7 @@
       "type": ["string", "null"]
     },
     "scope_note": {
-      "description": "見なかった範囲とその理由（例: 管理画面だけの変更でした。そのため、API への影響は指摘していません）。なければ null",
+      "description": "PR の中で見なかった範囲とその理由（例: 管理画面だけの変更でした。そのため、API への影響は指摘していません）。PR のコードを実行していない・textlint を省いたなど、レビューする側の決まりや事情は書かない。なければ null",
       "type": ["string", "null"]
     },
     "checked": {

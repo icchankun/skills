@@ -81,7 +81,7 @@ must と should は、影響範囲を調べてから残す。この確認は省�
 - `findings` は、残した指摘（直したものを含む）
 - `previous` は、2回目以降に前回までの指摘を全部書く。1回目は空
 - `dropped` は、落とした指摘と理由
-- `summary`・`scope_note`・`checked`・`not_flagged` は reviewer のものをそのまま渡す。事実と違うときだけ直す。指摘を落としたことで全体の評価が変わるなら、`summary` も合わせて直す
+- `summary`・`scope_note`・`checked`・`not_flagged` は reviewer のものをそのまま渡す。事実と違うときだけ直す。ただし、PR のコードを実行していない・textlint を省いたなど、レビューする側の決まりや事情が書いてあれば消す。消して何も残らなければ `scope_note` は null にする。指摘を落としたことで全体の評価が変わるなら、`summary` も合わせて直す
 - コミットメッセージや PR の本文に意図が書かれているので落とした指摘は、`dropped` に加えて `not_flagged` にも、どこに書かれていたかと一緒に挙げる
 
 呼び出し元は、`findings` の must と should が 0 件で、`previous` に `unresolved` の must と should がなく、CI が通っていれば approve する。そのため、迷う指摘を `explained` や `dropped` に寄せない。
