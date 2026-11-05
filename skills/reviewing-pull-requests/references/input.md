@@ -28,6 +28,7 @@ skip=(':(exclude,glob)**/*.lock' ':(exclude,glob)**/package-lock.json' ':(exclud
   ':(exclude,glob)**/*.min.js' ':(exclude,glob)**/*.min.css' ':(exclude,glob)**/*.map'
   ':(exclude,glob)**/*.snap' ':(exclude,glob)**/__snapshots__/**')
 git diff --no-color --no-ext-diff "$merge_base" "$head" -- . "${skip[@]}" > "$input/diff.patch"
+git log -n 50 --format='### %h %as %an%n%n%s%n%n%b' "$merge_base..$head" > "$input/commits.md"
 git diff --name-only "$merge_base" "$head" | head -n 15 > "$input/changed-files"
 git diff --name-only "$merge_base" "$head" | grep -vxF -f <(git diff --name-only "$merge_base" "$head" -- . "${skip[@]}") > "$input/skipped-files" || true
 ```
