@@ -11,6 +11,7 @@ description: チケットや実装方針を受け取ったセッション（指�
 
 1. **チケットを読む。** リンクがあれば中身を読み、要件・受け入れ条件・関連するリンクを拾う。曖昧な点があれば、ここでユーザーに聞く。渡した後に聞き直すより早い。
    - 「なぜ」（背景・課題・対応方針）もここで決める。チケットに書いてあれば、それを見せて合っているか確かめる。なければ聞く。自明なら聞かない。なぜはエージェントが考えるものではなく、人間が決めるもののため。
+   - なぜが曖昧なとき（背景か課題か対応方針のどれかが抜けている、読み方が2通りある、答えを聞いても決まらない）は、`grilling`（Claude Code は `/grilling`、Codex は `$grilling`）で詰める。詰めるのはなぜだけにし、実装の細部は driver に任せる。実装を始めてからなぜが揺らぐと、作り直しになるため。
 2. **ブランチと worktree を作る。** `creating-git-branches` を呼ぶ。
    - Herdr.app の中なら、`git wt` のフックが worktree を Herdr.app の space として開き、最初のタブで driver を起動する。driver は Claude Code で、`git config --global herdr.driver codex` なら Codex になる。フックの出力に `driver: <番地> (<agent>)` が出る。
    - 出なければ、`hc ls --label role=driver` で、cwd が worktree のパスと一致する terminal を探す。
