@@ -4,13 +4,8 @@
   "description": "reviewing-pull-requests と checking-review-findings が返す形。Codex の --output-schema に渡すので、全部の項目を required にし、省けるものは null を許す",
   "type": "object",
   "additionalProperties": false,
-  "required": ["good_points", "scope_note", "findings", "previous", "dropped"],
+  "required": ["scope_note", "findings", "previous", "dropped"],
   "properties": {
-    "good_points": {
-      "description": "レビューコメントの冒頭に書く、分かりやすかった設計や整理。1〜2個。2回目以降は空",
-      "type": "array",
-      "items": { "type": "string" }
-    },
     "scope_note": {
       "description": "見なかった範囲とその理由（例: 管理画面だけの変更でした。そのため、API への影響は指摘していません）。なければ null",
       "type": ["string", "null"]

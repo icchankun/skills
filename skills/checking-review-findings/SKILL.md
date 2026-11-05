@@ -77,7 +77,7 @@ must と should は、影響範囲を調べてから残す。この確認は省�
 - `findings` は、残した指摘（直したものを含む）
 - `previous` は、2回目以降に前回までの指摘を全部書く。1回目は空
 - `dropped` は、落とした指摘と理由
-- `good_points` と `scope_note` は reviewer のものをそのまま渡す。事実と違うときだけ直す
+- `scope_note` は reviewer のものをそのまま渡す。事実と違うときだけ直す
 
 呼び出し元は、`findings` の must と should が 0 件で、`previous` に `unresolved` の must と should がなく、CI が通っていれば approve する。そのため、迷う指摘を `explained` や `dropped` に寄せない。
 
