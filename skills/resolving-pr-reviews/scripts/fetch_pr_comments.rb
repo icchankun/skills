@@ -19,8 +19,8 @@ class PrUnresolvedThreadFetcher
       viewer { login } # 自分のユーザー名。返信済みのスレッドを除くのに使う
       repository(owner: $owner, name: $repo) {
         pullRequest(number: $number) {
-          title # PRのタイトル
-          url   # PRのURL
+          title
+          url
           reviews(last: 100) {
             nodes {
               author { login __typename }
@@ -36,14 +36,14 @@ class PrUnresolvedThreadFetcher
               isResolved # スレッドが解決済みかどうか。REST APIでは取得不可
               comments(first: 100) {
                 nodes {
-                  id        # コメントID（PRRC_...）
+                  id
                   databaseId # REST API の返信エンドポイントに渡す数値ID
                   author { login __typename } # login: GitHubユーザー名, __typename: "User" or "Bot"
-                  body      # コメント本文（Markdown）
-                  path      # レビュー対象のファイルパス
-                  line      # コメントが付けられた行番号
+                  body
+                  path
+                  line
                   createdAt # コメントの作成日時（ISO 8601）
-                  url       # コメントへの直リンク
+                  url
                 }
               }
             }

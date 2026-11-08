@@ -1,8 +1,9 @@
 # shellcheck shell=bash
-# ブラウザの操作を動画に撮るスクリプトから source する（record-scenes.sh が読み込む）。
+# ブラウザの操作を動画に撮るスクリプトから source する。
 # 使い方: media=<置き場所>; session=<セッション名>; source lib.sh
 #         場面ごとの steps で zoom・click_on・type_text・expect_text などを並べる
 
+# 呼び出しは1回あたり約0.7秒かかるので、どの部品も1回の呼び出しにまとめる
 # playwright-cli の出力は $log（既定は $media/record.log）に残す。捨てると、失敗したときに止まった理由が分からない
 P() {
   local out="${log:-$media/record.log}"
@@ -15,7 +16,6 @@ P() {
 # カーソル・押した印・見出し・スポットライトは decor.js に置く（どの動画でも見た目を同じにするため）
 _DECOR_JS="$(cat "$(dirname "${BASH_SOURCE[0]}")/decor.js")"
 
-# 録画の見せ方をまとめて設定する。playwright の飾り（枠・操作の名前・カーソル）はどれも出さない。
 # 押す場所の目印は click_on が、カーソルと同時に1回だけ出す（理由は SKILL.md）
 show_actions() {
   P run-code "async page => {
@@ -115,9 +115,7 @@ _FOCUS='const r0 = await l.boundingBox();
     await page.mouse.move(r.x + r.width / 2, r.y + r.height / 2);
     await page.waitForTimeout(420);'
 
-# 押す場所にスポットライトを当て、同時にカーソルを動かしてから押す。押すとスポットライトは消え、結果が暗くならずに見える。
-# 押した点の輪と、押した要素・カーソルが沈む動きは decor.js が出す。
-# 呼び出しは1回あたり約0.7秒かかるので、どの部品も1回の呼び出しにまとめる
+# 押すとスポットライトは消え、結果が暗くならずに見える
 click_on() {
   P run-code "async page => {
     const l = page.locator($(_json "$1")).first();
@@ -138,7 +136,7 @@ type_text() {
   }"
 }
 
-# セレクトボックスにスポットライトを当て、値を選ぶ。値は表示されている文（ラベル）で渡す
+# 値は表示されている文（ラベル）で渡す
 select_option() {
   P run-code "async page => {
     const l = page.locator($(_json "$1")).first();
@@ -161,10 +159,10 @@ goto() {
   P run-code "async page => { await page.goto($(_json "$1")); await page.waitForLoadState('networkidle').catch(() => {}); }"
 }
 
-# 見てほしい場所にスポットライトを当てて、少し見せる（既定は900ミリ秒）。次に押す・打つ場所が出るまで当てたままにする
 _SPOT_ON='const r = await l.boundingBox();
     await page.evaluate(([x, y, w, h]) => window.__mcSpot(x, y, w, h), [r.x, r.y, r.width, r.height]);'
 
+# 見てほしい場所にスポットライトを当てて少し見せる。次に押す・打つ場所が出るまで当てたままにする
 spot() {
   P run-code "async page => {
     const l = page.locator($(_json "$1")).first();
