@@ -80,6 +80,7 @@ graphify path "<変えたシンボル>" "<気になる呼び出し元>"
 |---|---|
 | [references/guidelines/common.md](references/guidelines/common.md) | いつも |
 | [references/guidelines/backend.md](references/guidelines/backend.md) | サーバー側のコードを変えた（Ruby のファイル、`Gemfile`、`db/migrate`、`config/` など） |
+| [references/guidelines/terraform.md](references/guidelines/terraform.md) | Terraform のコードを変えた（`*.tf`、`*.tfvars`、`.terraform.lock.hcl`） |
 
 見つけたものは、指摘にするか迷っても挙げる。絞るのは checking-review-findings の役割で、ここで落としたものは2回目に拾えない。ただし、次の「指摘から外すもの」に当たるものは挙げない。
 
