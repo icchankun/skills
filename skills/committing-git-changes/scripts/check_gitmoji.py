@@ -2,8 +2,10 @@
 # コミットメッセージの中見出し（### ）の先頭の絵文字が、gitmoji の公式一覧にあるかを確かめる。
 # 使い方: python3 check_gitmoji.py < メッセージのファイル
 #
-# 終了コード: 0 = すべて一覧にある / 1 = 一覧にない絵文字がある / 2 = 一覧を取れなかった
+# 終了コード: 0 = すべて一覧にある / 1 = 一覧にない絵文字がある / 2 = 同梱の一覧も読めなかった
 # 一覧は ~/.cache/gitmoji.json に1日置いて使い回す。
+# 取れなかったときは、期限切れのキャッシュか、同梱の gitmojis.json で確かめる。
+# 証明書をキーチェーンにしか入れていないネットワークでは、Python の HTTPS が通らないため。
 
 import json
 import sys
@@ -14,6 +16,7 @@ from pathlib import Path
 URL = "https://gitmoji.dev/api/gitmojis"
 CACHE = Path.home() / ".cache" / "gitmoji.json"
 CACHE_SECONDS = 24 * 60 * 60
+BUNDLED = Path(__file__).with_name("gitmojis.json")
 
 
 def normalize(emoji):
@@ -21,9 +24,7 @@ def normalize(emoji):
     return emoji.replace("\ufe0f", "")
 
 
-def load_gitmojis():
-    if CACHE.exists() and time.time() - CACHE.stat().st_mtime < CACHE_SECONDS:
-        return json.loads(CACHE.read_text())
+def fetch_gitmojis():
     # 既定の User-Agent は 403 で弾かれる
     req = urllib.request.Request(URL, headers={"User-Agent": "check-gitmoji"})
     with urllib.request.urlopen(req, timeout=10) as res:
@@ -31,6 +32,18 @@ def load_gitmojis():
     CACHE.parent.mkdir(parents=True, exist_ok=True)
     CACHE.write_text(json.dumps(data, ensure_ascii=False))
     return data
+
+
+def load_gitmojis():
+    if CACHE.exists() and time.time() - CACHE.stat().st_mtime < CACHE_SECONDS:
+        return json.loads(CACHE.read_text())
+    try:
+        return fetch_gitmojis()
+    except Exception as e:
+        print(f"gitmoji の一覧を取れなかったので、手元の一覧で確かめます: {e}", file=sys.stderr)
+    if CACHE.exists():
+        return json.loads(CACHE.read_text())
+    return json.loads(BUNDLED.read_text())
 
 
 def main():
