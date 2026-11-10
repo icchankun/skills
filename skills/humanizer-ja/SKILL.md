@@ -1,13 +1,13 @@
 ---
 name: humanizer-ja
-description: 日本語の文章からAIが書いたような癖を取り除き、人が書いたように読める文にする。コミットメッセージ・PR description・レビューへの返信・引き継ぎ・ドキュメントなど、人に読ませる日本語を書いた後の見直しに使う。「AIっぽい」「機械っぽい文章」「自然な日本語にして」「人間が書いたみたいに」と言われた場合や、reviewing-writing から文章やコードコメントの見直しを頼まれたときに使う。英語の文章は、Claude Code なら humanizer plugin の humanizer:humanizer を使い、Codex ならこの skill の癖のうち英語にもあるものを当てる。
+description: 日本語の文章からAIが書いたような癖を取り除き、人が書いたように読める文にする。「AIっぽい」「機械っぽい文章」「自然な日本語にして」「人間が書いたみたいに」と、癖を取ることだけを頼まれた場合や、reviewing-writing・writing-code-comments から癖の一覧を当てるよう頼まれたときに使う。会話の外に残る文章を出す前に全体を見直すときは、reviewing-writing を使う。英語の文章にも、日本語に限らない癖を当てる。
 ---
 
 # humanizer-ja
 
 日本語の文章から、AI が書いたように見える癖を取り除く。英語版の [humanizer](https://github.com/blader/humanizer) と同じ考え方で、日本語で特に出やすい癖を足したもの。
 
-英語の文章は、Claude Code なら humanizer plugin の `humanizer:humanizer` を使う。Codex にはこの plugin がないので、下の癖のうち日本語に限らないもの（8 と 12 以外）を英語の文章に当てる。
+英語の文章には、下の癖のうち日本語に限らないもの（8 と 12 以外）を当てる。英語の文章向けの humanizer の skill が入っていれば、そちらを使ってよい。
 
 言っている内容は変えない。事実・数値・固有名詞・リンクを足しも削りもしない。
 

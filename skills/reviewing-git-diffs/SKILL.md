@@ -1,13 +1,13 @@
 ---
 name: reviewing-git-diffs
-description: 差分を、正しさ（バグ・エラー処理・テストなど）、消せるコード（要らない依存・先回りした抽象化）、セキュリティ、リポジトリの流儀とフレームワークのベストプラクティスに沿っているかの4つでレビューし、指摘を Critical / Important / Suggestions の1つの一覧にまとめて返す。ファイルは編集しない。Claude Code では review-pr・ponytail-review・security-review を呼び、Codex では同じ観点を自分で当てる。「レビューして」「差分を見て」「コミット前・PRを出す前に見て」「作り込みすぎてないか見て」と言われた場合や、herdr-coding の reviewer としてレビューを頼まれた場合に使う。review-pr や ponytail-review を単独で呼ぶ場面でも、ユーザーが片方だけを指定していなければこちらを使う。PRに付いたレビューコメントへの対応は resolving-pr-reviews、他の人が作った GitHub の PR のレビューは reviewing-pull-requests の役割で、このスキルは使わない。Claude Code の code-review plugin で PR にレビューを投稿する場面でも、このスキルは使わない。
+description: 差分を、正しさ（バグ・エラー処理・テストなど）、消せるコード（要らない依存・先回りした抽象化）、セキュリティ、リポジトリの流儀とフレームワークのベストプラクティスに沿っているかの4つでレビューし、指摘を Critical / Important / Suggestions の1つの一覧にまとめて返す。ファイルは編集しない。「レビューして」「差分を見て」「コミット前・PRを出す前に見て」「作り込みすぎてないか見て」と言われた場合や、herdr-coding の reviewer としてレビューを頼まれた場合に使う。ユーザーが特定のレビューの道具を指定していなければ、差分のレビューはこちらを使う。PRに付いたレビューコメントへの対応は resolving-pr-reviews、他の人が作った GitHub の PR のレビューは reviewing-pull-requests の役割で、このスキルは使わない。PR にレビューを投稿する場面でも、このスキルは使わない。
 ---
 
 # reviewing-git-diffs
 
-2つのレビューは見るところが違う。review-pr はバグ・エラー処理・テスト・コメント・型を見て、ponytail-review は消せるもの（標準ライブラリの作り直し、要らない依存、先回りした抽象化）だけを見る。片方だけだと、正しいが大きすぎる差分か、小さいが壊れた差分を見逃す。
+差分を、正しさ・消せるもの・セキュリティ・流儀の4つの観点で見る。正しさだけを見ると正しいが大きすぎる差分を、消せるものだけを見ると小さいが壊れた差分を見逃す。
 
-これに、セキュリティの穴を見る security-review と、リポジトリの流儀とフレームワークのベストプラクティスに沿っているかを見るサブエージェントを足す。流儀の基準は following-repo-conventions が実装の前に dev-flow.md に書いたメモで、実装とレビューで同じものを使う。
+流儀の基準は following-repo-conventions が実装の前に dev-flow.md に書いたメモで、実装とレビューで同じものを使う。
 
 ## 対象を決める
 
@@ -41,67 +41,68 @@ sh <skill のディレクトリ>/scripts/snapshot.sh
 
 ## 観点を選ぶ
 
-review-pr に渡す観点は、対象の差分を見て選ぶ。関係のない観点のエージェントを動かしても、指摘は出ずに時間だけかかるため。
+正しさで見る観点は、対象の差分を見て選ぶ。関係のない観点を当てても、指摘は出ずに時間だけかかるため。
 
-| 観点 | 渡すとき |
+| 観点 | 当てるとき |
 |---|---|
 | code / errors / tests | 1回目は必ず |
 | comments | コメントやドキュメントの行が足されたか変わった |
 | types | 型・クラス・インターフェース・スキーマの定義が足されたか変わった |
 
-2回目以降は、code と、依頼に「前回指摘が出た観点」として書かれたものだけにする。下の 4 も、`conventions` が書かれたときだけ動かす。
+2回目以降は、code と、依頼に「前回指摘が出た観点」として書かれたものだけにする。下の 2〜4 も、その観点（`simplify`・`security`・`conventions`）が書かれたときだけ当てる。
 
-## 4つを呼ぶ
+## 4つの観点で見る
 
-Claude Code では下のとおり、1〜3 をプラグインのコマンドで呼ぶ。Codex にはこのプラグインがないので、下の「Codex のとき」に従う。
+同じ対象に、次の4つを当てる。観点と重さは reviewing-pull-requests の `<skill のディレクトリ>/../reviewing-pull-requests/references/viewpoints.md` に、何で確かめるかは同じ場所の `guidelines/` にある（`common.md` はいつも、ほかは差分に合うものだけ読む）。ここでは読むだけにする。
 
-同じ対象を4つに渡す。1〜3 は順に呼び、4 はサブエージェントに並列で頼む。
+| | 見るもの | viewpoints.md の観点 |
+|---|---|---|
+| 1 | 正しさ | 上の「観点を選ぶ」で選んだもの |
+| 2 | 消せるもの | simplify |
+| 3 | セキュリティ | security。認証や権限に触れない差分でも当てる。見逃したときの影響が大きいため |
+| 4 | 流儀とベストプラクティス | conventions |
 
-1回目（前回のスナップショットがないとき）だけは、2 と 3 もそれぞれサブエージェントに頼み、1 と同時に動かす。1回目は差分全体が対象で、順に呼ぶと待ち時間がいちばん長くなるため。2回目以降は対象が小さく、サブエージェントを起動するトークンの方が高くつくので、順に呼ぶ。サブエージェントは、コマンドの手順をなぞるだけなので親より軽いモデル（Claude Code は `sonnet`、Codex は `gpt-6-luna`）でよい。
+4 は次のように見る。
 
-1. `/pr-review-toolkit:review-pr <選んだ観点> parallel`
-   - `parallel` を付けて、エージェントを並列で動かす。付けないと1つずつ順に動き、待ち時間が観点の数だけ積み上がる。
-   - simplify は含めない。ファイルを書き換えるうえ、削る観点は ponytail-review が受け持つ。
-   - review-pr は `git diff` で対象を決めるので、`<base>..HEAD` や `<前回>..<今回>` のときは引数の後ろに「対象は `git diff <base>..HEAD`」のように書き添える。
-2. `/ponytail:ponytail-review`
-   - 対象の範囲を書き添える。
-3. `/security-review`
-   - 対象の範囲を書き添える。認証や権限に触れない差分でも呼ぶ。見逃したときの影響が大きいため。
-4. 流儀とベストプラクティスに沿っているか（サブエージェント。既存コードと見比べるだけなので、親より軽いモデル（Claude Code は `sonnet`、Codex は `gpt-6-luna`）でよい。サブエージェントを使えないときは自分で見る）
-   - dev-flow.md（`$(git rev-parse --absolute-git-dir)/dev-flow.md`）の「流儀のメモ」と、差分の近くの既存コードを渡し、名前空間・ファイル名・名前の付け方・粒度・実装の書き方・テーブルの構成が外れている箇所を挙げさせる。
-   - メモがなければ、差分の近くの既存コードだけを基準にさせる。
-   - Claude Code では、ガイドライン（`<skill のディレクトリ>/../reviewing-pull-requests/references/guidelines/`）のうち差分に合うものも当てさせる。security・errors・tests の項目は 1〜3 が見るので外す。Codex では 1〜3 の代わりに読むので、ここでは渡さない。
-   - 合うガイドラインがない技術は、その技術で広く使われているベストプラクティスを当てさせる。
-   - ベストプラクティスがリポジトリの流儀と食い違うときは、流儀を採る。
-   - linter で分かることと、CLAUDE.md に明記されたルールは挙げさせない。linter は herdr-coding が流し、CLAUDE.md は review-pr の code が見る。
+- dev-flow.md（`$(git rev-parse --absolute-git-dir)/dev-flow.md`）の「流儀のメモ」と、差分の近くの既存コードを基準に、名前空間・ファイル名・名前の付け方・粒度・実装の書き方・テーブルの構成が外れている箇所を挙げる。
+- メモがなければ、差分の近くの既存コードだけを基準にする。
+- ガイドラインのない技術は、その技術で広く使われているベストプラクティスを当てる。ベストプラクティスがリポジトリの流儀と食い違うときは、流儀を採る。
+- linter で分かることと、agent 向けの指示ファイル（CLAUDE.md・AGENTS.md など）に明記されたルールは挙げない。linter は herdr-coding が流し、指示ファイルは 1 の code で見る。
 
-### Codex のとき
+```
+サブエージェントを使えるか
+|-> 使える・1回目: 2・3・4 を別々に頼み、1 と並列
+|-> 使える・2回目以降: 4 だけ頼んで並列、1〜3 は自分で順に
+`-> 使えない: 1〜4 を自分で順に
+```
 
-1〜3 の代わりに、reviewing-pull-requests の観点（`<skill のディレクトリ>/../reviewing-pull-requests/references/viewpoints.md`）を自分で差分に当てる。ファイルは編集しない。観点とガイドラインは reviewing-pull-requests が持ち、ここでは読むだけにする。観点を何で確かめるかは、ガイドライン（`<skill のディレクトリ>/../reviewing-pull-requests/references/guidelines/`）のうち、差分に合うものを読む（`common.md` はいつも、ほかは差分に合うものだけ）。
+1回目は差分全体が対象で時間がかかるので並列にする。2回目以降は対象が小さく、起動のトークンの方が高くつくので、2・3 は頼まない。サブエージェントは既存コードと見比べるだけなので、標準のモデルでよい。
 
-| 代わりにするもの | 当てる観点 |
-|---|---|
-| 1 の review-pr | code・errors・tests・comments・types のうち、上の「観点を選ぶ」で選んだもの |
-| 2 の ponytail-review | simplify |
-| 3 の security-review | security |
+重さは、viewpoints.md の must を Critical、should を Important、ask・nit・fyi を Suggestions に読み替える。
 
-重さは、観点の表の must を Critical、should を Important、ask・nit・fyi を Suggestions に読み替える。ただし simplify の指摘は、重さに関わらず Suggestions にする。Claude Code の ponytail-review の指摘を必ず Suggestions に入れるのと合わせるため（観点の表の基準のままだと、should で Important になりうる）。
+### レビューの道具があるとき
 
-4 は Claude Code と同じ。`multi_agent` が有効でサブエージェントを使えるなら、1〜3 と 4 を分けて並列に動かしてよい。
+1〜3 に当たるレビューの skill やコマンドが入っていれば、自分で観点を当てる代わりに使ってよい。観点ごとに専用のエージェントが動くので、自分で当てるより見落としが減る。
 
-結果は下の「まとめる」と同じ形にする。観点の印は、1 は `(code)` `(errors)` のように見たもの、2 は `P` の番号、3 は `(security)` にする。
+| | 使えるもの | 使い方 |
+|---|---|---|
+| 1 | `pr-review-toolkit:review-pr` | `<選んだ観点> parallel` を渡す。`parallel` がないとエージェントが1つずつ動く。simplify は渡さない（ファイルを書き換えるうえ、2 と重なる）。`git diff` で対象を決めるので、`<base>..HEAD` や `<前回>..<今回>` のときは「対象は `git diff <base>..HEAD`」のように書き添える |
+| 2 | `ponytail:ponytail-review` | 対象の範囲を書き添える |
+| 3 | `security-review` | 対象の範囲を書き添える |
+
+道具を使ったときは、その道具が付けた区分をそのまま使う。
 
 ## まとめる
 
 4つの結果を1つにして返す。
 
-- review-pr の指摘は、その区分のまま Critical / Important / Suggestions に入れる。番号の後ろに、指摘を出した観点を `(errors)` のように書く。次の依頼で「前回指摘が出た観点」を決めるのに使う。
-- security-review の指摘は、重さに応じて Critical か Important に入れ、観点を `(security)` と書く。
-- 流儀の指摘は、メモや既存コードに明らかに反するものを Important、好みの範囲のものを Suggestions に入れる。ベストプラクティスの指摘は、壊れ方を示せるものを Important、それ以外を Suggestions に入れる。どちらも観点は `(conventions)` と書く。
-- ponytail-review の指摘は Suggestions に入れ、番号を `P` で振る。削る指摘は探せばいくらでも出るので、Important に入れると herdr-coding の往復が止まらなくなる。
-- 同じ箇所を両方が指摘していたら、重いほうの区分に1つにまとめる。
+- 1 の指摘は、番号の後ろに指摘を出した観点を `(errors)` のように書く。次の依頼で「前回指摘が出た観点」を決めるのに使う。
+- 3 の指摘は、重さに応じて Critical か Important に入れ、観点を `(security)` と書く。
+- 4 の指摘は、メモや既存コードに明らかに反するものを Important、好みの範囲のものを Suggestions に入れる。ベストプラクティスの指摘は、壊れ方を示せるものを Important、それ以外を Suggestions に入れる。どちらも観点は `(conventions)` と書く。
+- 2 の指摘は、重さに関わらず Suggestions に入れ、番号を `P` で振る。削る指摘は探せばいくらでも出るので、Important に入れると herdr-coding の往復が止まらなくなる。
+- 同じ箇所への指摘が複数の観点から出たら、重いほうの区分へ1つにまとめる。
 - 結果の1行目は `Critical: <件数> / Important: <件数>` にする。呼び出し元は、文章を読まずにこの行で次にすることを決める。
-- 該当なしの区分は「0件」と書く。ponytail-review が `Lean already. Ship.` を返したら、Suggestions に「ponytail: 削れる箇所なし」と書く。
+- 該当なしの区分は「0件」と書く。2 で削れる箇所がなければ、Suggestions に「simplify: 削れる箇所なし」と書く。
 
 ```
 Critical: 0 / Important: 2
@@ -127,5 +128,5 @@ net: -27 lines possible.
 ## 規律
 
 - ファイルを編集しない。直すのは呼び出し元。
-- 別のペインから `hc send` で頼まれたときは、結果を依頼元に `hc send <依頼元の番地>` で送り返す。依頼元の番地は依頼文か、届いたメッセージの `<hc from="t7 …">` に書いてある。自分の画面に書くだけでは依頼元に届かず、herdr-coding の往復が止まる。結果が長くても一時ファイルには書かず、結果の本文をそのまま `hc send` で送る。herdr-coding が立てる Claude Code の reviewer は、ファイルへの書き込みを許可されていないため。
-- どれかが失敗したり、コマンドが見つからなかったりしたら、動かなかったものを結果の先頭に書く。残りの結果だけを黙って返さない。
+- 別のペインから `hc send` で頼まれたときは、結果を依頼元に `hc send <依頼元の番地>` で送り返す。依頼元の番地は依頼文か、届いたメッセージの `<hc from="t7 …">` に書いてある。自分の画面に書くだけでは依頼元に届かず、herdr-coding の往復が止まる。結果が長くても一時ファイルには書かず、結果の本文をそのまま `hc send` で送る。herdr-coding が立てる reviewer は、ファイルへの書き込みを許可されていないことがあるため。
+- 当てられなかった観点や、失敗した・見つからなかった道具があれば、それを結果の先頭に書く。残りの結果だけを黙って返さない。

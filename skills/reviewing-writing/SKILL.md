@@ -1,6 +1,6 @@
 ---
 name: reviewing-writing
-description: 会話の外に残る文章（コミットメッセージ・PR description・レビューへの返信・引き継ぎ・Notion・ドキュメント・コードコメント）を、出す前に見直して直した文を返す。textlint で表記を機械的に確かめたあと、要らない文・冗長な文を削り、つなげた方が読みやすい文をつなげ、AI が書いたような癖を取り、図にした方が早く伝わる箇所を図にする。committing-git-changes・creating-pull-requests・resolving-pr-reviews・handover・planning-manual-checks・writing-slack-messages から文章を仕上げるときや、「文章を見直して」「推敲して」「簡潔にして」「冗長なところを削って」と言われた場合に使う。会話での返答には使わない。
+description: 人が読む、会話の外に残る文章（コミットメッセージ・PR description・レビューへの返信・Notion・ドキュメント・コードコメント）を、出す前に見直して直した文を返す。textlint で表記を機械的に確かめたあと、要らない文・冗長な文を削り、つなげた方が読みやすい文をつなげ、AI が書いたような癖を取り、図にした方が早く伝わる箇所を図にする。committing-git-changes・creating-pull-requests・resolving-pr-reviews・planning-manual-checks・writing-slack-messages・writing-notion-docs から文章を仕上げるときや、「文章を見直して」「推敲して」「簡潔にして」「冗長なところを削って」と言われた場合に使う。会話での返答と、agent が読むもの（引き継ぎ・依頼・SKILL.md・AGENTS.md・CLAUDE.md などの指示ファイル）には使わない。
 ---
 
 # reviewing-writing
@@ -24,7 +24,7 @@ npx -y -p textlint@14 -p textlint-rule-preset-ja-technical-writing@12 \
 
 ## 2. 観点ごとに見直す
 
-次の3つを、それぞれ別のサブエージェントに並列で頼む。下書きと文章の種類、呼び出し元が決めている書式を渡し、「直す箇所と直した文」を返してもらう。直す箇所がなければ「なし」と返してもらう。観点が決まっていて、1つずつ当てるだけなので、親より軽いモデル（Claude Code は `sonnet`、Codex は `gpt-6-luna`）でよい。サブエージェントを使えないときは、3つの観点を順に自分で当てる。
+次の3つを、それぞれ別のサブエージェントに並列で頼む。下書きと文章の種類、呼び出し元が決めている書式を渡し、「直す箇所と直した文」を返してもらう。直す箇所がなければ「なし」と返してもらう。観点が決まっていて、1つずつ当てるだけなので、標準のモデルでよい。サブエージェントを使えないときは、3つの観点を順に自分で当てる。
 
 書いた本人が見直すと、自分の言い回しを正しいと思い込みやすい。観点ごとに別の目で見るのはそのため。
 
@@ -38,11 +38,18 @@ npx -y -p textlint@14 -p textlint-rule-preset-ja-technical-writing@12 \
 3. つなげた方が分かるか？  → 主語が同じ短い文が続く、理由と結論が別の文に分かれている、などは1文にする
 ```
 
+要らない文は、読み手がこの文章で判断や作業をするのに使わない文。次のものは、読み手の判断に関わると言えない限り削る。
+
+- 作業の経緯や試した過程（「最初は〜を試しました」「〜で詰まりました」）
+- 調べていないこと・確かめていないことの断り書き（「原因は調べていません」）
+- 読み手が何もしなくてよい後始末や予定（「マージ後に close します」）
+- 背景の説明に入れた細かい数値（件数・秒数・割合）
+
 1文の中の冗長な言い回し（「〜することができる」「〜を行う」など）は、次の AI っぽさの観点で humanizer-ja が直すので、ここでは見ない。同じ直しが2回出ないようにするため。
 
 ### AI っぽさ
 
-`humanizer-ja` の観点で見る。英語の文章なら、Claude Code は humanizer plugin の `humanizer:humanizer` で見る。Codex にはこの plugin がないので、humanizer-ja の癖のうち日本語に限らないもの（8 と 12 以外）を英語に当てる。
+`humanizer-ja` の観点で見る。英語の文章の扱いも humanizer-ja に従う。
 
 ### 図にするか
 

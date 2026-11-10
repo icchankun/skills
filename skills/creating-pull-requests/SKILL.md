@@ -156,6 +156,4 @@ dev-flow.md（`"$(git rev-parse --absolute-git-dir)/dev-flow.md"`）に「動作
 
 ## 禁止事項
 
-- ユーザーの承認なしに `git push` や `gh pr create` を実行しない — 共有リポジトリへの操作は確認が必須
-- ベースブランチやデフォルトブランチの上では絶対にpushしない — 保護ブランチへの直接pushは事故のもと
 - コミットの作成・変更はしない — それは `committing-git-changes` の役割

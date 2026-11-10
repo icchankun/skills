@@ -1,6 +1,6 @@
 ---
 name: recording-browser-videos
-description: ブラウザの操作を、場面ごとに撮ってつなぎ、1本の mp4 にする。場面の切り替えの札、右上の見出し、押す場所のスポットライト、縁取りしたカーソル、押した印、なめらかなズームを、どの動画でも同じ見た目で出す部品を持つ。直した場面だけを撮り直し、場面を同時に撮ることもできる。ブラウザの立て方・閉じ方・置き場所・ログインの状態と、撮るものの規律は references/browser.md にまとめてあり、capturing-screens・recording-manual-checks・uploading-pr-media もそこを読む。recording-manual-checks（動作確認の動画）から使われるほか、「操作の動画を撮って」「デモ動画を作って」「再現する動画を撮って」と言われた場合に使う。playwright-cli と ffmpeg が必要。
+description: ブラウザの操作を、場面ごとに撮ってつなぎ、1本の mp4 にする。場面の切り替えの札、右上の見出し、押す場所のスポットライト、縁取りしたカーソル、押した印、なめらかなズームを、どの動画でも同じ見た目で出す部品を持つ。直した場面だけを撮り直し、場面を同時に撮ることもできる。ブラウザの立て方・閉じ方・置き場所・ログインの状態と、撮るものの規律は references/browser.md にまとめてあり、capturing-screens・recording-manual-checks・uploading-pr-media もそこを読む。recording-manual-checks（動作確認の動画）から使われるほか、「操作の動画を撮って」「デモ動画を作って」「再現する動画を撮って」と言われた場合に使う。動作確認の項目に沿って撮るときは recording-manual-checks を使う。playwright-cli と ffmpeg が必要。
 ---
 
 # recording-browser-videos

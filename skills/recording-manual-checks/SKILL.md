@@ -9,13 +9,7 @@ description: 動作確認の項目（planning-manual-checks が dev-flow.md に�
 
 撮り方と部品は `recording-browser-videos` に、ブラウザの扱い・置き場所・撮るものの規律は `<skill のディレクトリ>/../recording-browser-videos/references/browser.md` に従う。
 
-```
-planning-manual-checks -> recording-manual-checks: 動作確認の項目を渡す
-recording-manual-checks -> recording-browser-videos: 撮り方と部品を使う
-capturing-screens -> recording-browser-videos: references/browser.md に従う
-```
-
-撮るのは、サブエージェントに任せる。項目・アプリの URL・置き場所を渡し、この skill と `recording-browser-videos` に従わせる。決まった手順をなぞるだけなので、親より軽いモデル（Claude Code は `sonnet`、Codex は `gpt-6-luna`）でよい。重いモデルと撮り比べて出来はほぼ変わらず、時間は3分の1で済んだ。サブエージェントを使えないときは自分で撮る。
+撮るのは、サブエージェントに任せる。項目・アプリの URL・置き場所を渡し、この skill と `recording-browser-videos` に従わせる。決まった手順をなぞるだけなので、標準のモデルでよい。重いモデルと撮り比べて出来はほぼ変わらず、時間は3分の1で済んだ。サブエージェントを使えないときは自分で撮る。
 
 ## 1. 項目を読む
 
@@ -60,5 +54,3 @@ dev-flow.md の「画面」の節の表の下に、動画のファイル名を�
 ```markdown
 動画: checks.mp4
 ```
-
-撮るものの決まり（本番を撮らない・個人情報を写さない）は browser.md の「規律」に従う。

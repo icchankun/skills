@@ -1,6 +1,6 @@
 # レビューの観点
 
-差分に当てる観点。reviewing-pull-requests と、reviewing-git-diffs の Codex のときの手順が使う。checking-review-findings も、重さと指摘にしないものをここで確かめる。差分に関係する観点だけを当て、関係のない観点は飛ばす。
+差分に当てる観点。reviewing-pull-requests と、reviewing-git-diffs が使う。checking-review-findings も、重さと指摘にしないものをここで確かめる。差分に関係する観点だけを当て、関係のない観点は飛ばす。
 
 観点ごとに具体的に何を確かめるかは、[guidelines/](guidelines/) に書く。`common.md` はいつも、ほかは差分に合うものだけを読む。技術が増えたら、ファイルを足して reviewing-pull-requests の表に1行足す。
 
