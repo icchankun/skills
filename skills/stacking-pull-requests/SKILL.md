@@ -1,6 +1,6 @@
 ---
 name: stacking-pull-requests
-description: まだマージされていない PR の上に積む作業を、gh stack で stacked PR にする。1層を1つのブランチと1つの worktree にし、ブランチを作ったら手元のスタックに足し、PR を出したら GitHub のスタックにつなぎ、下の層を直したら上の層を載せ直し、マージはスタックごとに下からする。creating-git-branches で今のブランチの上に積んだとき、creating-pull-requests・resolving-pr-reviews がスタックの中のブランチを扱うときに呼ばれるほか、「stacked PR にして」「この PR の上に積んで」「スタックにして」と言われた場合に使う。gh stack 拡張（`gh extension install github/gh-stack`）が必要。
+description: まだマージされていない PR の上に積む作業を、gh stack で stacked PR にする。creating-git-branches で今のブランチの上に積んだとき、creating-pull-requests・resolving-pr-reviews がスタックの中のブランチを扱うときに呼ばれるほか、「stacked PR にして」「この PR の上に積んで」「スタックにして」と言われた場合に使う。gh stack 拡張（`gh extension install github/gh-stack`）が必要。
 ---
 
 # stacking-pull-requests
@@ -16,7 +16,7 @@ description: まだマージされていない PR の上に積む作業を、gh 
 
 1層 = 1ブランチ = 1 worktree にする。どの層も `creating-git-branches` で作り、下の層のブランチから切る。
 
-```
+```text
 main
 `-> feat/a, worktree A, PR #1（1層目）
     `-> feat/b, worktree B, PR #2（2層目）

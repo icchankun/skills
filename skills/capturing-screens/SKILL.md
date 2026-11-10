@@ -1,6 +1,6 @@
 ---
 name: capturing-screens
-description: 画面に変更がある作業で、変更前（ベースブランチ）と変更後（作業ブランチ）の同じ画面を、同じ画面サイズ・同じデータでスクショに撮る。撮ったファイルの一覧を dev-flow.md に書き、uploading-pr-media が PR に貼る。ブラウザの扱いと撮るものの規律は recording-browser-videos の references/browser.md に従う。running-dev-flow から画面を変えたときに呼ばれるほか、「スクショを撮って」「変更前後を撮って」と言われた場合に使う。playwright-cli が必要。
+description: 画面に変更がある作業で、変更前（ベースブランチ）と変更後（作業ブランチ）の同じ画面を、同じ画面サイズ・同じデータでスクショに撮る。running-dev-flow から画面を変えたときに呼ばれるほか、「スクショを撮って」「変更前後を撮って」と言われた場合に使う。playwright-cli が必要。
 ---
 
 # capturing-screens
@@ -27,7 +27,7 @@ running-dev-flow から実装の前に変更前だけを撮るときは、まだ
 
 ## 2. 置き場所を作る
 
-`<skill のディレクトリ>/../recording-browser-videos/references/browser.md` の「置き場所」のとおりに、`$media` と `$session` を決めてそこへ移る。以降の `playwright-cli` はここで動かす。ブラウザの立て方とログインの状態も、同じ資料に従う。
+`<skill のディレクトリ>/../recording-browser-videos/references/browser.md` の「置き場所」のとおりに、`$media` と `$session` を決めてそこへ移る。以降の `playwright-cli` はここで動かす。ブラウザの立て方とログインの状態、撮るものの規律（本番を撮らない・個人情報を写さない）も、同じ資料に従う。
 
 3 と 4 の `playwright-cli` は1つのスクリプト（`$media/capture.sh`）に書き、`hc run --bg --name capture bash "$media/capture.sh"` で動かして `hc wait capture` で待つ。別のシェルで動いて 2 の値は引き継がれないので、先頭で `media` と `session` を 2 と同じように決め、browser.md の「立て方と閉じ方」の形で `trap` を仕掛けてどう終わっても閉じる。
 
@@ -72,7 +72,3 @@ dev-flow.md の「画面」の節に、撮ったものを表で書く。dev-flow
 ## 不具合を見つけたとき
 
 変更前と変更後を見比べて、要件にない見た目の変化や崩れを見つけたら、その画像は PR に貼らない。running-dev-flow の「不具合を見つけたとき」に従って直してから、撮り直す。
-
-## 規律
-
-撮るものの規律（本番を撮らない・個人情報を写さない）は browser.md の「規律」に従う。

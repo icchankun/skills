@@ -1,11 +1,11 @@
 ---
 name: reviewing-writing
-description: 人が読む、会話の外に残る文章（コミットメッセージ・PR description・レビューへの返信・Notion・ドキュメント・コードコメント）を、出す前に見直して直した文を返す。textlint で表記を機械的に確かめたあと、要らない文・冗長な文を削り、つなげた方が読みやすい文をつなげ、AI が書いたような癖を取り、図にした方が早く伝わる箇所を図にする。committing-git-changes・creating-pull-requests・resolving-pr-reviews・planning-manual-checks・writing-slack-messages・writing-notion-docs から文章を仕上げるときや、「文章を見直して」「推敲して」「簡潔にして」「冗長なところを削って」と言われた場合に使う。会話での返答と、agent が読むもの（引き継ぎ・依頼・SKILL.md・AGENTS.md・CLAUDE.md などの指示ファイル）には使わない。
+description: 人が読む、会話の外に残る文章（コミットメッセージ・PR description・レビューへの返信・Notion・ドキュメント・コードコメント）を、出す前に見直して直した文を返す。committing-git-changes・creating-pull-requests・resolving-pr-reviews・planning-manual-checks・writing-slack-messages・writing-notion-docs から文章を仕上げるときや、「文章を見直して」「推敲して」「簡潔にして」「冗長なところを削って」と言われた場合に使う。会話での返答と、agent が読むもの（引き継ぎ・依頼・SKILL.md・AGENTS.md・CLAUDE.md などの指示ファイル）には使わない。
 ---
 
 # reviewing-writing
 
-会話の外に残る文章を、出す前に見直す。言っている内容は変えない。事実・数値・固有名詞・リンク・コードは足しも削りもしない。
+人が読む、会話の外に残る文章を、出す前に見直す。言っている内容は変えない。事実・数値・固有名詞・リンク・コードは足しも削りもしない。
 
 呼び出し元が決めている書式（committing-git-changes の句点なし・敬体、見出しの形、writing-slack-messages の1行目の【種類】・`• ラベル: 値` の箇条書き・お礼など）はそのまま守る。humanizer-ja の癖に当たっても直さない。
 
@@ -32,7 +32,7 @@ npx -y -p textlint@14 -p textlint-rule-preset-ja-technical-writing@12 \
 
 ### 削る・つなげる
 
-```
+```text
 1. この文は要るか？      → 要らなければ削る
 2. 他の箇所で言っていないか？ → 重複なら削る
 3. つなげた方が分かるか？  → 主語が同じ短い文が続く、理由と結論が別の文に分かれている、などは1文にする

@@ -7,7 +7,7 @@ description: 現在のセッションの作業内容・意思決定・捨てた�
 
 いまのセッションで積み上がった文脈を、引数で受け取った terminal の agent に `hc send` で渡す。相手が Claude Code でも Codex でも同じ手順で渡せる。
 
-```
+```text
 handover <番地>
 ```
 
@@ -88,8 +88,6 @@ worktree: /path/to/worktree
 
 受け取ったら hc send $HC_TERMINAL_ID で一言返してほしい。"
 ```
-
-本文が長いときは一時ファイルに書き、そのパスを送る。
 
 ## ステップ5: 報告する
 

@@ -5,9 +5,6 @@ description: GitHub PRをdraftで作成する。コミット内容からタイ�
 
 # creating-pull-requests
 
-gitのコミット情報の解析からdraft PR作成まで一気通貫で行う。
-PRタイトルとdescriptionをコミットメッセージから自動生成することで、手作業でのコピペや整形を不要にする。
-
 ## 手順
 
 ### ステップ1: ベースブランチを決める
@@ -23,7 +20,7 @@ git config --get "branch.$(git branch --show-current).gh-merge-base"
 gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
 ```
 
-`gh pr create` も `--base` がなければ同じ順で決めるが、確認と rebase に使うため、ここで明示的に決めておく
+`gh pr create` も `--base` がなければ同じ順で決めるが、確認と rebase に使うため、ここで明示的に決めておく。
 
 ### ステップ2: 現状を把握する
 
@@ -38,17 +35,17 @@ git diff <base>..HEAD --name-only
 
 **中断条件** — 以下のいずれかに該当する場合は処理を止め、理由を伝える:
 
-- 現ブランチがベースブランチまたはデフォルトブランチである — 保護ブランチへの直接pushが発生するため
-- ベースブランチからのコミットがない — PRに含める変更がないため
+- 現ブランチがベースブランチまたはデフォルトブランチである — 保護ブランチへの直接pushが発生するため。
+- ベースブランチからのコミットがない — PRに含める変更がないため。
 
 ### ステップ3: PRタイトルを組み立てる
 
 PRタイトルは、コミットメッセージの1行目と同じ形（Conventional Commits の prefix 付き）にする。squash でマージしたときに、そのままコミットの1行目になるため。
 
-- コミットが1つなら、その1行目をそのまま使う
-- コミットが複数あるなら、PR 全体の変更を表す1行を、コミットメッセージの1行目の規則（prefix、体言止め、50文字以内）で書く。prefix は変更の主な目的に合うものを選ぶ
+- コミットが1つなら、その1行目をそのまま使う。
+- コミットが複数あるなら、PR 全体の変更を表す1行を、コミットメッセージの1行目の規則（prefix、体言止め、50文字以内）で書く。prefix は変更の主な目的に合うものを選ぶ。
 
-```
+```text
 feat: 記事の一覧と詳細を返す API を追加
 fix: ログイン時のエラーハンドリングを修正
 ```
@@ -75,8 +72,8 @@ fix: ログイン時のエラーハンドリングを修正
 
 **複数コミットがある場合:**
 
-- 「なぜ必要なのか？」に相当する背景・課題の記述は、各コミットの内容が自然につながるよう文章としてまとめ直す
-- 「変更内容」に相当する箇条書きも、コミット単位ではなく変更の意味単位でまとめる
+- 「なぜ必要なのか？」に相当する背景・課題の記述は、各コミットの内容が自然につながるよう文章としてまとめ直す。
+- 「変更内容」に相当する箇条書きも、コミット単位ではなく変更の意味単位でまとめる。
 
 #### テーブルを足したとき
 
@@ -126,17 +123,21 @@ dev-flow.md（`"$(git rev-parse --absolute-git-dir)/dev-flow.md"`）に「動作
 承認後、以下を順に実行する:
 
 1. ベースブランチの最新をrebase:
+
    ```bash
    git pull --rebase origin <base>
    ```
+
    コンフリクトが発生した場合はユーザーに伝えて処理を中断する。自動でコンフリクト解消は行わない。
 
 2. リモートにpush（未pushの場合）:
+
    ```bash
    git push -u origin HEAD
    ```
 
 3. draft PRを作成:
+
    ```bash
    gh pr create --draft --base <base> --title "タイトル" --body "$(cat <<'EOF'
    description全文
@@ -145,9 +146,11 @@ dev-flow.md（`"$(git rev-parse --absolute-git-dir)/dev-flow.md"`）に「動作
    ```
 
 4. Copilot にレビューを依頼する:
+
    ```bash
    gh pr edit <PRのURL> --add-reviewer @copilot
    ```
+
    失敗したら、そのリポジトリでは Copilot のコードレビューが使えない。PR の作成は済んでいるので止めず、依頼できなかったことを伝える。
 
 5. ベースブランチがリポジトリのベースでなく、まだマージされていない作業ブランチなら、`stacking-pull-requests` の 2 で GitHub のスタックにつなぐ。
@@ -156,4 +159,4 @@ dev-flow.md（`"$(git rev-parse --absolute-git-dir)/dev-flow.md"`）に「動作
 
 ## 禁止事項
 
-- コミットの作成・変更はしない — それは `committing-git-changes` の役割
+- コミットの作成・変更はしない。`committing-git-changes` の役割のため。

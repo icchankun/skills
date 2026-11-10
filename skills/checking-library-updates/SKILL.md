@@ -81,7 +81,7 @@ description: Renovate や Dependabot が作った依存更新の PR（Bundler・
 
 `reasons` には `needs_human` の理由を1つずつ書く。`summary` には、何が上がり、何を確かめ、どう判定したかを2〜3文で書く。
 
-`confident` は、パッケージの種類や影響の有無を確かめきれなかったときに `false` にする。呼び出し元は、上のモデルで回し直す。
+`confident` は、パッケージの種類や影響の有無を確かめきれなかったときに `false` にする。呼び出し元は、重いモデルで回し直す。
 
 ### 6. 返す
 

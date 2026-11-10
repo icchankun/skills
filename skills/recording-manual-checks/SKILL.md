@@ -28,8 +28,6 @@ dev-flow.md の「動作確認」の項目を読む。項目がなければ、�
 
 スクリプトは、アプリを起動する前に書ける。押す場所の名前（ボタンの文言や `aria-label`）は、差分と動作確認の項目から決まるため。running-dev-flow では reviewer の返事を待つあいだに書き、撮る前に `snapshot` で名前だけ確かめる。
 
-場面を分けるのは、動作確認の項目そのものが分かれているときだけにする。
-
 ## 3. 撮ってつなぐ
 
 作業ブランチの worktree でアプリを起動し、worktree の中から撮る。
@@ -38,7 +36,6 @@ dev-flow.md の「動作確認」の項目を読む。項目がなければ、�
 <skill のディレクトリ>/../recording-browser-videos/scripts/record-scenes.sh -j 4 "$media/checks" "<URL>" "$media/checks.mp4"
 <skill のディレクトリ>/../recording-browser-videos/scripts/record-scenes.sh -j 4 "$media/checks" "<URL>" "$media/checks.mp4" 3   # 3 だけ撮り直す
 ```
-
 
 ## 不具合を見つけたとき
 

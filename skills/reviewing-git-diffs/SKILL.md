@@ -69,7 +69,7 @@ sh <skill のディレクトリ>/scripts/snapshot.sh
 - ガイドラインのない技術は、その技術で広く使われているベストプラクティスを当てる。ベストプラクティスがリポジトリの流儀と食い違うときは、流儀を採る。
 - linter で分かることと、agent 向けの指示ファイル（CLAUDE.md・AGENTS.md など）に明記されたルールは挙げない。linter は herdr-coding が流し、指示ファイルは 1 の code で見る。
 
-```
+```text
 サブエージェントを使えるか
 |-> 使える・1回目: 2・3・4 を別々に頼み、1 と並列
 |-> 使える・2回目以降: 4 だけ頼んで並列、1〜3 は自分で順に
@@ -104,7 +104,7 @@ sh <skill のディレクトリ>/scripts/snapshot.sh
 - 結果の1行目は `Critical: <件数> / Important: <件数>` にする。呼び出し元は、文章を読まずにこの行で次にすることを決める。
 - 該当なしの区分は「0件」と書く。2 で削れる箇所がなければ、Suggestions に「simplify: 削れる箇所なし」と書く。
 
-```
+```text
 Critical: 0 / Important: 2
 対象: 未コミットの差分（3ファイル）
 観点: code errors tests

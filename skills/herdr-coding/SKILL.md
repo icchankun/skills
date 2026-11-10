@@ -7,7 +7,7 @@ description: Herdr.appで隣のペインにreviewerを立て、自分が実装�
 
 このペインが実装役（coder）を兼ね、隣に reviewer を1人立てる。reviewer の指摘は `hc send` でこのペインの次の入力として届くので、間に誰も挟まずに往復できる。driver と reviewer は Claude Code でも Codex でもよく、混ざっていても同じ手順で往復できる。
 
-```
+```text
 driver -> reviewer: reviewing-git-diffs でのレビューを頼む
 reviewer -> driver: 指摘を返す（ファイルは編集しない）
 driver: 妥当な指摘を直して、もう一度頼む
@@ -142,7 +142,7 @@ dev-flow.md があれば、「直さないと決めた指摘」の節にも理�
 
 ### 報告
 
-```
+```text
 ## レビュー結果（4ラウンドで直す指摘 0件）
 
 ### 直した
