@@ -182,7 +182,7 @@ app/models/foo.rb:L40 — 「nil チェックを追加」を削除
    - 直した（draft）: `こちら対応しました！` + 修正後のコードのパーマリンク + なぜその直し方にしたかを1文。パーマリンクは push 後の HEAD の SHA で作る（`https://github.com/<REPO>/blob/<SHA>/<パス>#L<開始>-L<終了>`）。fixup で元のコミットの SHA は変わるので、push 前の SHA を使わない
    - 直さない: 直さない理由を1〜2文で書く。レビュアーが読んで納得できるよう、根拠（既存の設計判断、呼び出し元のコード位置など）を添える
 
-   返信文は `reviewing-writing` スキルで見直してから投稿する。
+   返信文は `yomiyasu`（英語なら `humanizer`）で推敲してから投稿する。
 
 5. resolve する（スレッドの最初のコメントの `author_type` で判定）:
    - `Bot` → 返信後に resolve する（GraphQL mutation `resolveReviewThread` を `thread_id` で実行）。「直さない」も resolve する。残すと次のラウンドで同じスレッドを拾い直すため

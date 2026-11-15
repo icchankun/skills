@@ -106,7 +106,7 @@ dev-flow.md（`"$(git rev-parse --absolute-git-dir)/dev-flow.md"`）に「動作
 
 #### 文章の見直し
 
-複数コミットをまとめ直した文章は、`reviewing-writing` スキルで見直してから提示する。動作確認の項目は `planning-manual-checks` で、コミットメッセージをそのまま使った部分は `committing-git-changes` で見直し済みなので、手を入れない。
+複数コミットをまとめ直した文章は、`yomiyasu`（英語なら `humanizer`）で推敲してから提示する。動作確認の項目は `planning-manual-checks` で、コミットメッセージをそのまま使った部分は `committing-git-changes` で見直し済みなので、手を入れない。
 
 ### ステップ5: ユーザーに確認する
 
