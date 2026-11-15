@@ -1,6 +1,6 @@
 ---
 name: checking-library-updates
-description: Renovate や Dependabot が作った依存更新の PR（Bundler・npm・Docker イメージ・GitHub Actions）を読み、自動で approve してよいか、自分で見るべきかを schemas/verdict.json の形の JSON で返す。リリースノートの breaking・deprecation をリポジトリでの使い方と突き合わせ、上がるパッケージが認証・決済・DB・暗号・フレームワーク・言語ランタイムのどれかに当たるかを判断し、PR に既に付いた AI レビューとも見比べる。ファイルは編集せず、GitHub にも投稿しない。codex-dep-review から呼ばれたときや、「この依存更新の PR を approve してよいか見て」と言われた場合に使う。
+description: Renovate や Dependabot が作った依存更新の PR（Bundler・npm・Docker イメージ・GitHub Actions）を読み、自動で approve してよいか、自分で見るべきかを schemas/verdict.json の形の JSON で返す。リリースノートの breaking・deprecation をリポジトリでの使い方と突き合わせ、上がるパッケージが認証・決済・DB・暗号・フレームワーク・言語ランタイムのどれかに当たるかを判断し、PR に既に付いた AI レビューとも見比べる。ファイルは編集せず、GitHub にも投稿しない。codex-dep-pr-review から呼ばれたときや、「この依存更新の PR を approve してよいか見て」と言われた場合に使う。
 ---
 
 # checking-library-updates

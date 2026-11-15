@@ -1,6 +1,6 @@
 # 入力のディレクトリを作る
 
-reviewing-pull-requests・checking-review-findings・checking-library-updates は、呼び出し元のスクリプト（dotfiles の codex-pr-review・codex-dep-review）が作る入力のディレクトリを読む。人に頼まれて、依頼文に入力のディレクトリが書かれていないときは、ここの手順で同じ中身を作ってから始める。
+reviewing-pull-requests・checking-review-findings・checking-library-updates は、呼び出し元のスクリプト（dotfiles の codex-code-pr-review・codex-dep-pr-review）が作る入力のディレクトリを読む。人に頼まれて、依頼文に入力のディレクトリが書かれていないときは、ここの手順で同じ中身を作ってから始める。
 
 作るのは一時的なディレクトリと worktree だけで、作業中のリポジトリのファイルは変えない。いつも1回目（ラウンド 1）として作る。
 

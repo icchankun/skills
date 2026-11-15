@@ -1,6 +1,6 @@
 ---
 name: checking-review-findings
-description: reviewing-pull-requests が出した PR の指摘を1件ずつコードで確かめ、誤った指摘を落とし、重さを直して、schemas/findings.json の形の JSON で返す（advisor）。2回目以降は、前回までの指摘が直ったか、作者の説明で直さなくてよくなったかも判定する。ファイルは編集せず、GitHub にも投稿しない。codex-pr-review から呼ばれたときや、「この指摘が正しいか確かめて」と言われた場合に使う。
+description: reviewing-pull-requests が出した PR の指摘を1件ずつコードで確かめ、誤った指摘を落とし、重さを直して、schemas/findings.json の形の JSON で返す（advisor）。2回目以降は、前回までの指摘が直ったか、作者の説明で直さなくてよくなったかも判定する。ファイルは編集せず、GitHub にも投稿しない。codex-code-pr-review から呼ばれたときや、「この指摘が正しいか確かめて」と言われた場合に使う。
 ---
 
 # checking-review-findings
