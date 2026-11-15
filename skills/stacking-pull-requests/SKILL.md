@@ -62,7 +62,7 @@ gh stack push --remote origin
 ```
 
 - 上の層の worktree は、変更がなければ一緒に更新される。変更が残っている worktree では止まるので、先にコミットしてもらう。
-- push は上の層の分もまとめて送る。ready の PR が含まれるなら、`resolving-pr-reviews` のステップ4の承認に、上の層の push も含めて聞く。
+- push は上の層の分もまとめて送る。
 - コンフリクトで止まったら、`gh-stack` skill の「Exit 3 recovery」に従う。勝手に解消しない。
 
 ## 4. マージはスタックごとに下から
