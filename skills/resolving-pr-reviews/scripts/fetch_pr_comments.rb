@@ -3,13 +3,17 @@
 
 # PR の未解決レビューコメント（レビュースレッド）を取得し、JSON で標準出力する。
 # 最後のコメントが自分の返信のスレッドは、相手の返事待ちなので含めない。
-# 自分以外のレビューも返す。指摘のないレビューはスレッドを作らないので、届いたかはこちらで見る。
+# ただし、自分のアカウントで AI が付けた指摘（本文に 🤖 を含む、スレッドの最初のコメント）だけの
+# スレッドは含める。返信は2件目以降になるので、返信に 🤖 を付けても拾い直さない。
+# 自分以外のレビューと、自分の 🤖 付きのレビューも返す。指摘のないレビューはスレッドを作らないので、届いたかはこちらで見る。
 # 使い方: ruby fetch_pr_comments.rb <owner/repo> <pr_number>
 #
 # 依存: gh CLI（認証済み）
 
 require "json"
 require "open3"
+
+AI_MARK = "🤖"
 
 Result = Data.define(:pr_title, :pr_url, :unresolved_thread_count, :threads, :reviews)
 
@@ -87,7 +91,7 @@ class PrUnresolvedThreadFetcher
 
   def reviews
     pull_request.dig("reviews", "nodes").filter_map do |review|
-      next if review.dig("author", "login") == pull_request["viewer"]
+      next if mine?(review) && !ai?(review)
 
       {
         author: review.dig("author", "login"),
@@ -120,7 +124,8 @@ class PrUnresolvedThreadFetcher
   def extract_unresolved_threads(nodes)
     nodes.filter_map do |thread|
       next if thread["isResolved"]
-      next if thread.dig("comments", "nodes").last&.dig("author", "login") == pull_request["viewer"]
+      comments = thread.dig("comments", "nodes")
+      next if mine?(comments.last) && !(comments.size == 1 && ai?(comments.last))
 
       {
         thread_id: thread["id"],
@@ -128,6 +133,14 @@ class PrUnresolvedThreadFetcher
         comments: thread.dig("comments", "nodes").map { |c| build_comment(c) }
       }
     end
+  end
+
+  def mine?(node)
+    node&.dig("author", "login") == pull_request["viewer"]
+  end
+
+  def ai?(node)
+    node["body"].to_s.include?(AI_MARK)
   end
 
   def build_comment(comment)

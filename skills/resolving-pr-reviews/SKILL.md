@@ -88,6 +88,18 @@ ruby <skill のディレクトリ>/scripts/fetch_pr_comments.rb "$REPO" <PR番�
 
 **最後のコメントが自分のスレッドは除外する。** 前のラウンドで返信済みで、人のレビュアーの resolve 待ちになっているもの。レビュアーが再度返信していれば最後のコメントは相手のものになるので、自然に対象に戻る。
 
+自分のアカウントで AI が付けた指摘は、他人の指摘と同じく対象にする。本文に `🤖` を含み、スレッドの最初のコメントで、まだ誰も返信していないもの。自分の 🤖 付きのレビューも `reviews` に入る。手で書いた（`🤖` のない）自分のコメントは、何件目でも対象にしない。
+
+| スレッドのコメント | 対象か |
+|---|---|
+| 1. 自分の AI（🤖） | 対象 |
+| 1. 自分の AI（🤖）→ 2. 自分の AI の返信（🤖） | 除く |
+| 1. 自分の AI（🤖）→ 2. 自分（🤖 なし） | 除く |
+| 1. 他人（🤖 の有無は問わない） | 対象 |
+| 1. 他人 → 2. 自分の AI の返信（🤖） | 除く |
+| 1. 他人 → 2. 自分の AI の返信（🤖）→ 3. 他人 | 対象 |
+| 1. 自分（🤖 なし） | 除く |
+
 除外したあとで0件なら、ステップ7へ進む。
 
 ## ステップ2: 仕分け
@@ -177,7 +189,7 @@ GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <ベースブランチ>
 
    質問への返信には、感謝と答えを書く。答えの根拠のコードの位置かコミットを添える。
 
-   リンクは返信の最後に、空行を挟んで置く。
+   リンクは返信の最後に、空行を挟んで置く。その下に空行を挟み、AI が書いたと分かるよう footer `🤖 Generated with [Claude Code](https://claude.com/claude-code)` を付ける。返信はスレッドの2件目以降になるので、🤖 を付けてもステップ1で拾い直さない。
 
    リンクの作り方:
 
@@ -192,6 +204,8 @@ GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <ベースブランチ>
    呼び出し元が3か所あるため、ここで空の配列として扱う形にしています。
 
    [fix: 一覧が空のときにエラーにならないようにする](<コミットのURL>)
+
+   🤖 Generated with [Claude Code](https://claude.com/claude-code)
    ```
 
    例（直した・draft）:
@@ -202,6 +216,8 @@ GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <ベースブランチ>
    先にまとめて読み込む形にしています。
 
    <修正後のコードのパーマリンク>
+
+   🤖 Generated with [Claude Code](https://claude.com/claude-code)
    ```
 
    例（直さない）:
@@ -211,6 +227,8 @@ GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <ベースブランチ>
    ここは呼び出し元で検証済みのため、直さないと判断しました。今回は変更していません。
 
    <呼び出し元のパーマリンク>
+
+   🤖 Generated with [Claude Code](https://claude.com/claude-code)
    ```
 
    例（質問）:
@@ -220,6 +238,8 @@ GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <ベースブランチ>
    このメソッドは、管理画面の一覧からだけ呼ばれています。
 
    <呼び出し元のパーマリンク>
+
+   🤖 Generated with [Claude Code](https://claude.com/claude-code)
    ```
 
    返信文は `yomiyasu`（英語なら `humanizer`）で推敲してから投稿する。
