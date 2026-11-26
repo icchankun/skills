@@ -11,6 +11,8 @@
 #   worktree の中から呼ぶ。ブラウザのセッション名は、その worktree の名前から決まる。
 set -euo pipefail
 
+# 下で置き場所へ cd するので、相対パスで呼ばれても読めるよう先に絶対パスにする
+lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 jobs=1
 if [[ "${1:-}" == -j ]]; then jobs="$2"; shift 2; fi
 dir="$(cd "$1" && pwd)" url="$2" out="$3"; shift 3
@@ -23,7 +25,6 @@ auth="${AUTH:-${gitdir:+$gitdir/browser-auth.json}}"
 # playwright-cli は今いるディレクトリに .playwright-cli/ を作るので、worktree に残さないよう置き場所で動かす
 cd "$dir"
 media="$dir"
-lib="$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 # shellcheck source=lib.sh
 source "$lib"
 
@@ -74,7 +75,6 @@ for pid in "${pids[@]}"; do wait "$pid" || failed=1; done
 
 # 番号の順につなぐ。どれも同じ設定で変換しているので、変換し直さずにつなげる
 list="$dir/list.txt"
-: >"$list"
-for f in $(ls "$dir"/*.mp4 | sort -V); do printf "file '%s'\n" "$f" >>"$list"; done
+printf '%s\n' "$dir"/*.mp4 | sort -V | while IFS= read -r f; do printf "file '%s'\n" "$f"; done >"$list"
 ffmpeg -loglevel error -y -f concat -safe 0 -i "$list" -c copy -movflags +faststart "$out"
 echo DONE

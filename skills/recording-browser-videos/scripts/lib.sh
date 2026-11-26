@@ -26,7 +26,7 @@ show_actions() {
   }"
 }
 
-_json() { python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$1"; }
+_json() { jq -n --arg s "$1" '$s'; }
 
 # 今の場面の題を、画面の右上にずっと出す。動画の再生バーで隠れないよう、下には置かない。ページを移っても出し直す
 heading() {

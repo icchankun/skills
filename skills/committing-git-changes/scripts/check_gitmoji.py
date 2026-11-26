@@ -34,15 +34,26 @@ def fetch_gitmojis():
     return data
 
 
+def read_cache():
+    # 壊れたキャッシュで止まらず、取り直すか同梱の一覧に進む
+    try:
+        return json.loads(CACHE.read_text())
+    except (OSError, ValueError):
+        return None
+
+
 def load_gitmojis():
     if CACHE.exists() and time.time() - CACHE.stat().st_mtime < CACHE_SECONDS:
-        return json.loads(CACHE.read_text())
+        cached = read_cache()
+        if cached is not None:
+            return cached
     try:
         return fetch_gitmojis()
     except Exception as e:
         print(f"gitmoji の一覧を取れなかったので、手元の一覧で確かめます: {e}", file=sys.stderr)
-    if CACHE.exists():
-        return json.loads(CACHE.read_text())
+    cached = read_cache()
+    if cached is not None:
+        return cached
     return json.loads(BUNDLED.read_text())
 
 

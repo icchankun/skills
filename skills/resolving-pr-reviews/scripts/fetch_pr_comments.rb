@@ -19,7 +19,7 @@ Result = Data.define(:pr_title, :pr_url, :unresolved_thread_count, :threads, :re
 
 class PrUnresolvedThreadFetcher
   QUERY = <<~GRAPHQL
-    query($owner: String!, $repo: String!, $number: Int!) {
+    query($owner: String!, $repo: String!, $number: Int!, $after: String) {
       viewer { login } # 自分のユーザー名。返信済みのスレッドを除くのに使う
       repository(owner: $owner, name: $repo) {
         pullRequest(number: $number) {
@@ -34,7 +34,8 @@ class PrUnresolvedThreadFetcher
               url
             }
           }
-          reviewThreads(first: 100) {
+          reviewThreads(first: 100, after: $after) {
+            pageInfo { hasNextPage endCursor } # 100件を超えたら続きを取る
             nodes {
               id         # スレッドID（PRRT_...）。resolveReviewThread mutation に使用
               isResolved # スレッドが解決済みかどうか。REST APIでは取得不可
@@ -105,13 +106,22 @@ class PrUnresolvedThreadFetcher
   end
 
   def fetch_pull_request
-    stdout, stderr, status = Open3.capture3(
-      "gh", "api", "graphql",
-      "-f", "query=#{QUERY}",
-      "-F", "owner=#{owner}",
-      "-F", "repo=#{repo}",
-      "-F", "number=#{number}"
-    )
+    pr = fetch_page(nil)
+    threads = pr.dig("reviewThreads", "nodes")
+    page_info = pr.dig("reviewThreads", "pageInfo")
+    while page_info["hasNextPage"]
+      connection = fetch_page(page_info["endCursor"])["reviewThreads"]
+      threads += connection["nodes"]
+      page_info = connection["pageInfo"]
+    end
+    pr.merge("reviewThreads" => { "nodes" => threads })
+  end
+
+  def fetch_page(after)
+    # owner と repo は -F だと数字だけの名前が数値に変わるので、文字列のまま渡す -f にする
+    args = ["gh", "api", "graphql", "-f", "query=#{QUERY}", "-f", "owner=#{owner}", "-f", "repo=#{repo}", "-F", "number=#{number}"]
+    args += ["-f", "after=#{after}"] if after
+    stdout, stderr, status = Open3.capture3(*args)
     abort "gh api error: #{stderr}" unless status.success?
 
     data = JSON.parse(stdout)["data"]
@@ -130,7 +140,7 @@ class PrUnresolvedThreadFetcher
       {
         thread_id: thread["id"],
         is_resolved: false,
-        comments: thread.dig("comments", "nodes").map { |c| build_comment(c) }
+        comments: comments.map { |c| build_comment(c) }
       }
     end
   end

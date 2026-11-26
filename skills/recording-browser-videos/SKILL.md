@@ -7,7 +7,7 @@ description: ブラウザの操作を場面ごとに撮ってつなぎ、どの�
 
 ブラウザの操作を、場面ごとに撮ってつなぐ。見た目の部品はスクリプトに固定してあるので、撮るたびに書くのは場面ごとの数行だけになる。
 
-依存: `playwright-cli`、`ffmpeg`（どちらも mise で入れる）
+依存: `playwright-cli`、`ffmpeg`（どちらも mise で入れる）、`jq`
 
 `playwright-cli` の書き方は `playwright-cli` skill に従う。読むのは SKILL.md と、使う資料（`references/video-recording.md`・`references/storage-state.md`）だけにする。全部読むとトークンが多くかかるため。食い違うときは `playwright-cli <コマンド> --help` を正とする。
 
