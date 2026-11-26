@@ -33,7 +33,7 @@ running-dev-flow から実装の前に変更前だけを撮るときは、まだ
 
 ## 3. 変更前を撮る
 
-ベースブランチは、creating-pull-requests のステップ1（`<skill のディレクトリ>/../creating-pull-requests/SKILL.md`）の決め方で決める。`git worktree list` でそのブランチの worktree を探し、そこでアプリを起動する。起動のしかたはリポジトリの README や `bin/dev` などに従う。
+ベースブランチは、`<skill のディレクトリ>/../creating-pull-requests/scripts/base-branch.sh` が出すブランチにする。`git worktree list` でそのブランチの worktree を探し、そこでアプリを起動する。起動のしかたはリポジトリの README や `bin/dev` などに従う。
 
 ```bash
 playwright-cli -s="$session" open "<URL>" --idle-timeout=600000

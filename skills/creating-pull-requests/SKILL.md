@@ -16,9 +16,10 @@ PRのマージ先（ベースブランチ）を次の順で決める。以降の
 3. リポジトリのデフォルトブランチ
 
 ```bash
-git config --get "branch.$(git branch --show-current).gh-merge-base"
-gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
+<skill のディレクトリ>/scripts/base-branch.sh [引数のブランチ]
 ```
+
+決めたブランチを標準出力に、どの方法で決めたかを標準エラーに出す。
 
 `gh pr create` も `--base` がなければ同じ順で決めるが、確認と rebase に使うため、ここで明示的に決めておく。
 

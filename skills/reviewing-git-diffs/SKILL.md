@@ -19,7 +19,7 @@ git status --short
 
 何か出れば未コミットの差分が対象。`??` の untracked ファイルは `git diff` に出ずレビューから漏れるので、結果の先頭にファイル名を挙げて対象外だと書く。`git add -N` で追跡に加えるのは呼び出し元の仕事で、ここではしない。
 
-何も出なければ、`<base>..HEAD` が対象。`<base>` は、creating-pull-requests のステップ1（`<skill のディレクトリ>/../creating-pull-requests/SKILL.md`）の決め方で決める。PR のマージ先と同じブランチを基準にするため。
+何も出なければ、`<base>..HEAD` が対象。`<base>` は、`<skill のディレクトリ>/../creating-pull-requests/scripts/base-branch.sh` が出すブランチにする。PR のマージ先と同じブランチを基準にするため。
 
 ### 2回目以降は、前回から変わった部分だけ
 

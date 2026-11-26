@@ -134,7 +134,7 @@ git commit --fixup=<直したい箇所を入れたコミット>
 GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <ベースブランチ>
 ```
 
-`<ベースブランチ>` は、`creating-pull-requests` のステップ1の決め方で決める。
+`<ベースブランチ>` は、`<skill のディレクトリ>/../creating-pull-requests/scripts/base-branch.sh` が出すブランチにする。
 
 コミットメッセージは変えないので、`committing-git-changes` は通さない。直しが元のコミットの説明と合わなくなるときだけ、そのコミットのメッセージも直す。
 
@@ -179,70 +179,7 @@ GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <ベースブランチ>
 
    URL を含める場合は、`gh api` でGitHub上にコミットが存在することを確認してから返信する（リンク切れ防止）。
 
-   **返信の中身:**
-
-   指摘への返信（直した・直さない）には、次の3つを必ず書く。レビュアーが返信だけで、どう扱われたかを追えるようにするため。
-
-   - 指摘への感謝を1文
-   - どう判断したか（直す・直さないと決めた理由）
-   - どんな変更を入れたか。直したなら、変えた中身と、コミットかパーマリンク。直さないなら「今回は変更していません」と書く
-
-   質問への返信には、感謝と答えを書く。答えの根拠のコードの位置かコミットを添える。
-
-   リンクは返信の最後に、空行を挟んで置く。その下に空行を挟み、AI が書いたと分かるよう footer `🤖 Generated with [Claude Code](https://claude.com/claude-code)` を付ける。返信はスレッドの2件目以降になるので、🤖 を付けてもステップ1で拾い直さない。
-
-   リンクの作り方:
-
-   - ready の PR: `[<コミットメッセージの1行目>](<コミットのURL>)`
-   - draft の PR: 修正後のコードのパーマリンク。push 後の HEAD の SHA で作る（`https://github.com/<REPO>/blob/<SHA>/<パス>#L<開始>-L<終了>`）。fixup で元のコミットの SHA は変わるので、push 前の SHA を使わない
-
-   例（直した・ready）:
-
-   ```text
-   ご指摘ありがとうございます！
-   一覧が空のときに落ちることを確かめたので、直しました。
-   呼び出し元が3か所あるため、ここで空の配列として扱う形にしています。
-
-   [fix: 一覧が空のときにエラーにならないようにする](<コミットのURL>)
-
-   🤖 Generated with [Claude Code](https://claude.com/claude-code)
-   ```
-
-   例（直した・draft）:
-
-   ```text
-   ご指摘ありがとうございます！
-   ループの中で毎回クエリが出ていたので、直しました。
-   先にまとめて読み込む形にしています。
-
-   <修正後のコードのパーマリンク>
-
-   🤖 Generated with [Claude Code](https://claude.com/claude-code)
-   ```
-
-   例（直さない）:
-
-   ```text
-   ご指摘ありがとうございます！
-   ここは呼び出し元で検証済みのため、直さないと判断しました。今回は変更していません。
-
-   <呼び出し元のパーマリンク>
-
-   🤖 Generated with [Claude Code](https://claude.com/claude-code)
-   ```
-
-   例（質問）:
-
-   ```text
-   ご質問ありがとうございます！
-   このメソッドは、管理画面の一覧からだけ呼ばれています。
-
-   <呼び出し元のパーマリンク>
-
-   🤖 Generated with [Claude Code](https://claude.com/claude-code)
-   ```
-
-   返信文は `yomiyasu`（英語なら `humanizer`）で推敲してから投稿する。
+   返信の中身・リンクの作り方・footer は `<skill のディレクトリ>/references/replies.md` に従う。返信文は `yomiyasu`（英語なら `humanizer`）で推敲してから投稿する。
 
 5. resolve する（スレッドの最初のコメントの `author_type` で判定）:
    - `Bot` → 返信後に resolve する（GraphQL mutation `resolveReviewThread` を `thread_id` で実行）。「直さない」も resolve する。残すと次のラウンドで同じスレッドを拾い直すため
@@ -252,17 +189,7 @@ GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <ベースブランチ>
 
 `--once` のとき、またはステップ5-3の依頼が通らなかったときはスキップして、ステップ7へ進む。
 
-`fetch_pr_comments.rb` を30秒ごとに回すループを一時ファイルのスクリプトに書き、`hc run --bg --name copilot-wait bash <スクリプト>` で起動する。`since` はステップ5-1で記録した時刻。指摘のないレビューはスレッドを作らないので、スレッドの数ではなく、Copilot のレビューが `since` より後に届いたかで見る:
-
-```bash
-since=<push前の時刻>
-for _ in $(seq 20); do
-  out=$(ruby <skill のディレクトリ>/scripts/fetch_pr_comments.rb "$REPO" <PR番号>) || exit 1
-  jq -e --arg since "$since" 'any(.reviews[]; (.author | startswith("copilot-pull-request-reviewer")) and .submitted_at > $since)' <<<"$out" >/dev/null && { printf '%s\n' "$out"; exit 0; }
-  sleep 30
-done
-exit 2
-```
+同梱のスクリプトを `hc run --bg --name copilot-wait <skill のディレクトリ>/scripts/wait-copilot.sh "$REPO" <PR番号> <since>` で起動する。`since` はステップ5-1で記録した時刻。指摘のないレビューはスレッドを作らないので、スクリプトはスレッドの数ではなく、Copilot のレビューが `since` より後に届いたかで見る。30秒ごとに、10分まで待つ。
 
 `hc wait copilot-wait` で終わるのを待ち、`hc read copilot-wait` で出力を読む。終わったら `hc rm copilot-wait` で消す。`sleep` やポーリングを自分で繰り返さない。
 

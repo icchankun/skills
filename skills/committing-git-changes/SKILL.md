@@ -107,7 +107,7 @@ pre-commit hookが失敗した場合:
 
 ## 禁止事項
 
-- `git push` はユーザーが明示的に依頼した場合のみ実行する。
+- このスキルの中では `git push` しない。push は、ユーザーが明示的に頼んだときか、呼び出し元のスキル（`creating-pull-requests`・`resolving-pr-reviews`）が行う。
   - リモートへの反映は取り消しが難しく、レビュー前の変更が共有ブランチに乗ってしまうため。
 - `--no-verify` は使わない。
   - lintやシークレット検査などのpre-commit hookを素通りさせ、問題のあるコードがそのまま履歴に残るため。
